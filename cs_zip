@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# ensures i don't misname/forget any files
+files=()
+error=0
+if ! [ -f files.txt ]; then
+	echo "ERROR: files.txt does not exist"
+	exit
+fi
+for f in $(cat files.txt); do
+	file=$(find | grep "/$f\$")
+	if [ "$file" == "" ]; then
+		echo "ERROR: $f does not exist"
+		error=1
+	fi
+	files+=($file)
+done
+if [ $error = 1 ]; then
+	exit
+fi
+output=$(basename $PWD).zip
+zip -j - ${files[@]} > $output
