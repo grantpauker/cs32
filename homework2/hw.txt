@@ -1,0 +1,12 @@
+2. (4, 6), (3, 6), (5, 6), (5, 7), (5, 8), (6, 8), (7, 8), (8, 8), (8, 7), (6, 6), (4, 5), (4, 4)
+4. (4, 6), (4, 5), (5, 6), (3, 6), (4, 4), (6, 6), (5, 7), (4, 3), (5, 4), (5, 8), (4, 2), (6, 4)
+    These two algorithms differ in that the stack algorithm uses depth-first search, while the queue algorithm uses breadth-first search.
+
+    Depth-first search involves searching far from the start until we hit a dead end, after which a new branch is tried.
+    It makes sense that the stack-based implementation would be depth-first as coordinates closer to the start are stuck at the beginning of the stack,
+    so coordinates further away must be explored before we can check back near the start again.
+
+    Breadth-first search involves searching coordinates closer to the start first before branching out and looking further.
+    It makes sense that a queue-based implementation would be breadth-first as coordinates we want to check are added to the end of the queue,
+    so we have to wait until closer areas have been pushed from the queue before we can move on to further areas.
+
