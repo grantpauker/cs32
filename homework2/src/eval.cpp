@@ -4,8 +4,21 @@
 #include <cctype>
 #include <stack>
 
-#define PRECEDENCE(o) ((o) == '+' || (o) == '-') ? 0 : 1
 #define IS_OPERATOR(c) ((c) == '+' || (c) == '-' || (c) == '*' || (c) == '/')
+
+int precedence(char oper)
+{
+    switch (oper)
+    {
+    case '*':
+    case '/':
+        return 0;
+    case '+':
+    case '-':
+        return 1;
+    }
+    return -1;
+}
 
 bool toPostfix(std::string infix, std::string &postfix)
 {
@@ -53,7 +66,7 @@ bool toPostfix(std::string infix, std::string &postfix)
             {
                 return false;
             }
-            while (!operators.empty() && operators.top() != '(' && (PRECEDENCE(c) <= PRECEDENCE(operators.top())))
+            while (!operators.empty() && operators.top() != '(' && precedence(c) >= precedence(operators.top()))
             {
                 postfix += operators.top();
                 operators.pop();

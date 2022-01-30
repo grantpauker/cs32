@@ -31,7 +31,8 @@ int main()
     assert(evaluate("y(*o)", m, pf, answer) == 1 && answer == 999);
     assert(evaluate("a+E", m, pf, answer) == 1 && answer == 999);
     assert(evaluate("(a+(i-o)", m, pf, answer) == 1 && answer == 999);
-    // unary operators not allowed:
+    assert(evaluate(")a+(i-o)", m, pf, answer) == 1 && answer == 999);
+    assert(evaluate("+a", m, pf, answer) == 1 && answer == 999);
     assert(evaluate("-a", m, pf, answer) == 1 && answer == 999);
     assert(evaluate("a*b", m, pf, answer) == 2 &&
            pf == "ab*" && answer == 999);

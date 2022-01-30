@@ -73,20 +73,14 @@ int main()
       "XXX...X..X",
       "X...X....X",
       "XXXXXXXXXX"};
+
   assert(pathExists(spec_maze, 10, 10, 4, 6, 1, 1));
-
-  /*
   assert(pathExists(maze0, 3, 3, 1, 1, 1, 2));
-
   assert(!pathExists(maze1, 3, 4, 1, 1, 1, 3));
-
   assert(pathExists(maze2, 10, 10, 1, 1, 8, 1));
   resetMaze(maze2);
-
   assert(!pathExists(maze2, 10, 10, 1, 1, 1,8));
   resetMaze(maze2);
-
   assert(!pathExists(maze2, 10, 10, 1, 1, 2,5));
   resetMaze(maze2);
-  */
 }
