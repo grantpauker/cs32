@@ -9,7 +9,6 @@ void printMaze(std::string maze[])
   int cols = maze[0].length();
   for (int i = 0; i < cols; i++)
   {
-
     std::cout << i % 10;
   }
   std::cout << std::endl;

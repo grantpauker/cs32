@@ -140,27 +140,27 @@ int evaluate(std::string infix, const Map &values, std::string &postfix, int &re
             operands.pop();
             int operand1 = operands.top();
             operands.pop();
-            int result;
+            int output;
             switch (c)
             {
             case '+':
-                result = operand1 + operand2;
+                output = operand1 + operand2;
                 break;
             case '-':
-                result = operand1 - operand2;
+                output = operand1 - operand2;
                 break;
             case '*':
-                result = operand1 * operand2;
+                output = operand1 * operand2;
                 break;
             case '/':
                 if (operand2 == 0)
                 {
                     return 3;
                 }
-                result = operand1 / operand2;
+                output = operand1 / operand2;
                 break;
             }
-            operands.push(result);
+            operands.push(output);
         }
     }
     result = operands.top();

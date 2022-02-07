@@ -63,7 +63,7 @@ int main()
 
     // test update with existing keys
     assert(m0.update(k, 14) && m0.get(k, v1) && v1 == 14);
-    assert(m0.update("xyz", -4) && m0.get("xyz", v1) && v1 == -4);                             
+    assert(m0.update("xyz", -4) && m0.get("xyz", v1) && v1 == -4);
 
     assert(m0.insertOrUpdate("xyz", 4) && m0.get("xyz", v1) && v1 == 4 && m0.size() == 8);     // test insertOrUpdate with existing key
     assert(m0.insertOrUpdate("frog", 17) && m0.get("frog", v1) && v1 == 17 && m0.size() == 9); // test insertOrUpdate with new key
