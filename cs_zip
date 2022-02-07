@@ -11,6 +11,8 @@ for f in $(cat files.txt); do
 	if [ "$file" == "" ]; then
 		echo "ERROR: $f does not exist"
 		error=1
+	else
+		grep -nH --color=always TODO $file && error=1
 	fi
 	files+=($file)
 done
