@@ -4,7 +4,6 @@ project(midterm1)
 option(G32 "use g32" OFF)
 
 if(G32)
-    message(STATUS "HEY")
     set(WARNINGS "-Wall -Wextra -Wno-sign-compare -Werror=return-type -Wno-unknown-pragmas -Werror=vla")
     
     set(STD "-std=c++17")
