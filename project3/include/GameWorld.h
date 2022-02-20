@@ -11,10 +11,9 @@ class GameController;
 class GameWorld
 {
 public:
-
 	GameWorld(std::string assetPath)
-	 : m_lives(START_PLAYER_LIVES), m_score(0), m_level(1),
-	   m_controller(nullptr), m_assetPath(assetPath)
+		: m_lives(START_PLAYER_LIVES), m_score(0), m_level(1),
+		  m_controller(nullptr), m_assetPath(assetPath)
 	{
 	}
 
@@ -28,7 +27,7 @@ public:
 
 	void setGameStatText(std::string text);
 
-	bool getKey(int& value);
+	bool getKey(int &value);
 	void playSound(int soundID);
 
 	int getLevel() const
@@ -47,7 +46,7 @@ public:
 	}
 
 	void incLives()
-    {
+	{
 		m_lives++;
 	}
 
@@ -61,7 +60,7 @@ public:
 		m_score += howMuch;
 	}
 
-	  // The following should be used by only the framework, not the student
+	// The following should be used by only the framework, not the student
 
 	bool isGameOver() const
 	{
@@ -72,8 +71,8 @@ public:
 	{
 		++m_level;
 	}
- 
-	void setController(GameController* controller)
+
+	void setController(GameController *controller)
 	{
 		m_controller = controller;
 	}
@@ -84,12 +83,13 @@ public:
 	}
 
 	void setMsPerTick(int ms_per_tick);
+
 private:
-	int				m_lives;
-	int				m_score;
-	int				m_level;
-	GameController* m_controller;
-	std::string		m_assetPath;
+	int m_lives;
+	int m_score;
+	int m_level;
+	GameController *m_controller;
+	std::string m_assetPath;
 };
 
 #endif // GAMEWORLD_H_

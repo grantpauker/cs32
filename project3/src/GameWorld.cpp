@@ -1,16 +1,16 @@
 #include "GameWorld.h"
 #include "GameController.h"
-#include <string>
 #include <cstdlib>
+#include <string>
 using namespace std;
 
-bool GameWorld::getKey(int& value)
+bool GameWorld::getKey(int &value)
 {
 	bool gotKey = m_controller->getLastKey(value);
 
 	if (gotKey)
 	{
-		if (value == 'q'  ||  value == '\x03')  // CTRL-C
+		if (value == 'q' || value == '\x03') // CTRL-C
 			m_controller->quitGame();
 	}
 	return gotKey;
