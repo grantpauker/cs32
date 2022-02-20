@@ -11,11 +11,10 @@ for f in $(cat files.txt); do
 	if [ "$file" == "" ]; then
 		echo "ERROR: $f does not exist"
 		error=1
-	else
-		grep -nH --color=always TODO $file && error=1
 	fi
 	files+=($file)
 done
+grep -nrH --color=always --include "*.cpp" --include "*.h" TODO && error=1
 if [ $error = 1 ]; then
 	exit
 fi
