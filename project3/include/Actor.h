@@ -18,7 +18,7 @@ public:
     virtual bool isSolid() { return false; }
     virtual bool isDamageable() { return false; }
 
-    void setAlive(bool alive) { m_alive = alive; }
+    void kill() { m_alive = false; }
 
     bool isAlive() { return m_alive; }
     StudentWorld *getWorld() { return m_world; }
@@ -144,7 +144,7 @@ class Goomba : public Actor
 {
 public:
     Goomba(int x, int y, StudentWorld *world);
-    
+
     virtual void doSomething();
     virtual void bonk(Actor *bonker);
     virtual void damage();

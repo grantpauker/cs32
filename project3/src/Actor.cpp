@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #pragma region Actor
-Actor::Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world) : GraphObject(image_id, x, y, dir, depth, size), m_world(world)
+Actor::Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world) : GraphObject(image_id, x, y, dir, depth, size), m_world(world), m_alive(true)
 {
 }
 
@@ -31,7 +31,6 @@ bool Actor::isCollidingWith(Actor *a)
 }
 
 #pragma endregion Actor
-
 #pragma region Goodie
 // TODO separate classes
 Goodie::Goodie(int x, int y, GoodieType goodie_type, StudentWorld *world) : Actor(goodie_type == FLOWER ? IID_FLOWER : goodie_type == MUSHROOM ? IID_MUSHROOM
@@ -41,7 +40,6 @@ Goodie::Goodie(int x, int y, GoodieType goodie_type, StudentWorld *world) : Acto
                                                                                                                                                : 100),
                                                                             m_goodie_type(goodie_type)
 {
-    setAlive(true);
 }
 void Goodie::doSomething()
 {
@@ -53,7 +51,7 @@ void Goodie::doSomething()
         {
             getWorld()->setPeachHP(2);
         }
-        setAlive(false);
+        kill();
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
         return;
     }
@@ -90,7 +88,6 @@ void Goodie::doSomething()
 #pragma region Peach
 Peach::Peach(int x_start, int y_start, StudentWorld *world) : Actor(IID_PEACH, x_start, y_start, 0, 0, 1, world)
 {
-    setAlive(true);
     m_hp = 1;
     m_invincible = false;
     m_recharging = false;
@@ -196,7 +193,6 @@ void Peach::givePower(Goodie::GoodieType goodie)
 {
     if (goodie == Goodie::GoodieType::FLOWER)
     {
-        std::cout << "JHEU\n";
         m_powers[0] = true;
     }
     else if (goodie == Goodie::MUSHROOM)
@@ -218,7 +214,6 @@ void Peach::damage() {}
 #pragma region Block
 Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(block_type == PIPE ? IID_PIPE : IID_BLOCK, x, y, 0, 2, 1, world), m_block_type(block_type)
 {
-    setAlive(true);
     m_released_goodie = false;
 }
 void Block::bonk(Actor *bonker)
@@ -248,11 +243,9 @@ void Block::bonk(Actor *bonker)
     }
 }
 #pragma endregion Block
-
 #pragma region Flag
 Flag::Flag(int x, int y, bool is_final, StudentWorld *world) : Actor(is_final ? IID_MARIO : IID_FLAG, x, y, 0, 1, 1, world), m_is_final(is_final)
 {
-    setAlive(true);
 }
 
 void Flag::doSomething()
@@ -263,7 +256,7 @@ void Flag::doSomething()
     }
     if (getWorld()->isCollidingWithPeach(this))
     {
-        setAlive(false);
+        kill();
         getWorld()->increaseScore(1000);
         if (m_is_final)
         {
@@ -280,7 +273,6 @@ void Flag::doSomething()
 #pragma region Fireball
 Fireball::Fireball(int x, int y, int dir, bool is_shell, StudentWorld *world) : Actor(is_shell ? IID_SHELL : IID_PEACH_FIRE, x, y, dir, 1, 1, world)
 {
-    setAlive(true);
 }
 
 void Fireball::doSomething()
@@ -295,7 +287,7 @@ void Fireball::doSomething()
     {
         if (getWorld()->willCollide(this, true, Direction::RIGHT, 4) != nullptr)
         {
-            setAlive(false);
+            kill();
         }
         else
         {
@@ -306,7 +298,7 @@ void Fireball::doSomething()
     {
         if (getWorld()->willCollide(this, true, Direction::LEFT, 2) != nullptr)
         {
-            setAlive(false);
+            kill();
         }
         else
         {

@@ -18,6 +18,11 @@ StudentWorld::StudentWorld(string assetPath)
     : GameWorld(assetPath), m_level_complete(false), m_game_complete(false), m_on_last_level(false)
 {
 }
+
+StudentWorld::~StudentWorld()
+{
+    cleanUp();
+}
 void StudentWorld::bonkAllCollisions(Actor *bonker, bool must_be_solid)
 {
     for (auto bonked : m_actors)
@@ -42,7 +47,7 @@ void StudentWorld::damageAllCollisions(Actor *damager, bool exclude_peach, bool 
         }
         if (damaged != damager && damaged->isCollidingWith(damager))
         {
-            damager->setAlive(false);
+            damager->kill();
             damaged->damage();
             return;
         }
@@ -61,13 +66,9 @@ Actor *StudentWorld::willCollide(Actor *actor, bool is_solid, Direction dir, int
         {
             if (is_solid == collider->isSolid())
             { // TODO check
-            return collider;
+                return collider;
             }
         }
-    }
-    if(heyed){
-                std::cout << "GOIND AFTER HEY\n";
-
     }
     return nullptr;
 }
