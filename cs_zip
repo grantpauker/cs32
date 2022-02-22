@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# ensures i don't misname/forget any files
 files=()
 error=0
 if ! [ -f files.txt ]; then
@@ -14,7 +13,9 @@ for f in $(cat files.txt); do
 	fi
 	files+=($file)
 done
-grep -nrH --color=always --include "*.cpp" --include "*.h" TODO && error=1
+if [ "$1" != "-o" ]; then
+	grep -nrH --color=always --include "*.cpp" --include "*.h" TODO && error=1
+fi
 if [ $error = 1 ]; then
 	exit
 fi
