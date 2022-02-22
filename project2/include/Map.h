@@ -2,8 +2,14 @@
 #define MAP_H
 #include <string>
 
+#ifdef GRADER
+#include "OurType.h"
+using KeyType = OurType;
+using ValueType = std::string;
+#else
 using KeyType = std::string;
 using ValueType = double;
+#endif
 
 class Map
 {
