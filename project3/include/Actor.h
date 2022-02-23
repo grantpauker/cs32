@@ -10,23 +10,23 @@ class StudentWorld;
 class Actor : public GraphObject
 {
 public:
-    Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world);
+    Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world) : GraphObject(image_id, x, y, dir, depth, size), m_world(world), m_alive(true) {}
+
     virtual void doSomething() = 0;
     virtual void bonk(Actor *bonker) = 0;
     virtual void damage() = 0;
-    virtual bool isBonkable() { return true; }
+    virtual bool isBonkable() { return true; } // TODO check if necessary
     virtual bool isSolid() { return false; }
     virtual bool isDamageable() { return false; }
-
-    void kill() { m_alive = false; }
 
     bool isAlive() { return m_alive; }
     StudentWorld *getWorld() { return m_world; }
 
-    void relativeMove(int dx, int dy);
-
     bool isCollidingWith(double x, double y);
     bool isCollidingWith(Actor *a);
+
+    void kill() { m_alive = false; }
+    void relativeMove(int dx, int dy);
 
 private:
     StudentWorld *m_world;
@@ -44,14 +44,45 @@ public:
         MUSHROOM,
         STAR
     };
-    Goodie(int x, int y, GoodieType goodie_type, StudentWorld *world);
+    Goodie(int x, int y, int id, StudentWorld *world);
+
+    virtual GoodieType getType() = 0;
+    virtual int getPoints() = 0;
+
     virtual void doSomething();
     virtual void bonk(Actor *bonker) {}
     virtual void damage() {}
+};
 
-private:
-    GoodieType m_goodie_type;
-    int m_point_value;
+class Flower : public Goodie
+{
+public:
+    Flower(int x, int y, StudentWorld *world) : Goodie(x, y, IID_FLOWER, world) {}
+
+    virtual GoodieType getType() { return FLOWER; }
+    virtual int getPoints() { return 50; }
+
+    virtual void doSomething();
+};
+
+class Mushroom : public Goodie
+{
+public:
+    Mushroom(int x, int y, StudentWorld *world) : Goodie(x, y, IID_MUSHROOM, world) {}
+
+    virtual GoodieType getType() { return MUSHROOM; }
+    virtual int getPoints() { return 75; }
+
+    virtual void doSomething();
+};
+
+class Star : public Goodie
+{
+public:
+    Star(int x, int y, StudentWorld *world) : Goodie(x, y, IID_STAR, world) {}
+
+    virtual GoodieType getType() { return STAR; }
+    virtual int getPoints() { return 100; }
 };
 #pragma endregion Goodie
 
@@ -115,7 +146,7 @@ private:
 class Flag : public Actor
 {
 public:
-    Flag(int x, int y, bool is_final, StudentWorld *world);
+    Flag(int x, int y, bool is_final, StudentWorld *world) : Actor(is_final ? IID_MARIO : IID_FLAG, x, y, 0, 1, 1, world), m_is_final(is_final) {}
     virtual void doSomething();
     virtual void bonk(Actor *bonker) {}
     virtual void damage() {}
@@ -129,59 +160,55 @@ private:
 class Projectile : public Actor
 {
 public:
-    Projectile(int x, int y, int dir, int id, StudentWorld *world);
+    Projectile(int x, int y, int dir, int id, StudentWorld *world) : Actor(id, x, y, dir, 1, 1, world) {}
     virtual void doSomething();
     virtual void bonk(Actor *bonker) {}
     virtual void damage() {}
-
-private:
 };
 
-class PeachFireball : public Projectile
+class PeachProjectile : public Projectile
 {
-
 public:
-    PeachFireball(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_PEACH_FIRE, world) {}
-    virtual void doSomething();
-};
-
-class Shell : public Projectile
-{
-
-public:
-    Shell(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_SHELL, world) {}
+    PeachProjectile(int x, int y, int dir, bool is_fireball, StudentWorld *world) : Projectile(x, y, dir, is_fireball ? IID_PEACH_FIRE : IID_SHELL, world) {}
     virtual void doSomething();
 };
 
 class PiranhaFireball : public Projectile
 {
-
 public:
     PiranhaFireball(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_PIRANHA_FIRE, world) {}
     virtual void doSomething();
 };
 #pragma endregion Projectile
 
-#pragma region Goomba
-class MovingEnemy : public Actor
+#pragma region EnemyBase
+class Enemy : public Actor
 {
 public:
-    MovingEnemy(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, randInt(0, 1) * 180, 0, 1, world) {}
+    Enemy(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, randInt(0, 1) * 180, 0, 1, world) {}
 
     virtual void doSomething();
     virtual void bonk(Actor *bonker);
     virtual void damage();
     virtual bool isDamageable() { return true; }
 };
+
+class MovingEnemy : public Enemy
+{
+public:
+    MovingEnemy(int x, int y, int id, StudentWorld *world) : Enemy(x, y, id, world) {}
+
+    virtual void doSomething();
+};
+#pragma endregion EnemyBase
+
+#pragma region Enemies
 class Goomba : public MovingEnemy
 {
 public:
     Goomba(int x, int y, StudentWorld *world) : MovingEnemy(x, y, IID_GOOMBA, world) {}
 };
 
-#pragma endregion Goomba
-
-#pragma region Koopa
 class Koopa : public MovingEnemy
 {
 public:
@@ -191,19 +218,16 @@ public:
     virtual void damage();
 };
 
-class Piranha : public Actor
+class Piranha : public Enemy
 {
 public:
-    Piranha(int x, int y, StudentWorld *world) : Actor(IID_PIRANHA, x, y, randInt(0, 1) * 180, 0, 1, world) {}
+    Piranha(int x, int y, StudentWorld *world) : Enemy(x, y, IID_PIRANHA, world) {}
 
     virtual void doSomething();
-    virtual void bonk(Actor *bonker);
-    virtual void damage();
-    virtual bool isDamageable() { return true; }
 
 private:
     int m_firing_delay;
 };
-#pragma endregion Koopa
+#pragma endregion Enemies
 
 #endif // ACTOR_H

@@ -15,7 +15,7 @@ GameWorld *createStudentWorld(string assetPath)
 }
 
 StudentWorld::StudentWorld(string assetPath)
-    : GameWorld(assetPath), m_level_complete(false), m_game_complete(false), m_on_last_level(false)
+    : GameWorld(assetPath), m_level_complete(false), m_game_complete(false)
 {
 }
 
@@ -23,33 +23,47 @@ StudentWorld::~StudentWorld()
 {
     cleanUp();
 }
-void StudentWorld::bonkAllCollisions(Actor *bonker, bool must_be_solid)
+
+bool StudentWorld::isHangingOverEdge(Actor *actor)
+{
+    // TODO fix
+    return willCollide(actor, 0, -1) == nullptr;
+}
+
+Actor *StudentWorld::willCollide(Actor *actor, int dx, int dy)
+{
+    int x = actor->getX() + dx;
+    int y = actor->getY() + dy;
+    for (auto collider : m_actors)
+    {
+        if (collider != actor && collider->isAlive() && collider->isSolid() && collider->isCollidingWith(x, y))
+        {
+            return collider;
+        }
+    }
+    return nullptr;
+}
+
+void StudentWorld::bonkAllCollisions(Actor *bonker)
 {
     for (auto bonked : m_actors)
     {
-        if (must_be_solid && !bonked->isSolid())
-        {
-            continue;
-        }
-        if (bonked != bonker && bonked->isCollidingWith(bonker))
+        if (bonked != bonker && bonked->isAlive() && bonked->isCollidingWith(bonker))
         {
             bonked->bonk(bonker);
         }
     }
 }
+
 void StudentWorld::damageAllCollisions(Actor *damager, bool exclude_peach, bool die_on_impact)
 {
     for (auto damaged : m_actors)
     {
-        if (!damaged->isAlive())
-        {
-            continue;
-        }
         if (exclude_peach && (damaged == m_peach))
         {
             continue;
         }
-        if (damaged != damager && damaged->isCollidingWith(damager))
+        if (damaged != damager && damaged->isAlive() && damaged->isDamageable() && damaged->isCollidingWith(damager))
         {
             damager->kill();
             damaged->damage();
@@ -57,37 +71,7 @@ void StudentWorld::damageAllCollisions(Actor *damager, bool exclude_peach, bool 
         }
     }
 }
-Actor *StudentWorld::willCollide(Actor *actor, bool is_solid, Direction dir, int dist)
-{
-    int dx = dir == LEFT ? -dist : (dir == RIGHT ? dist : 0);
-    int dy = dir == UP ? dist : (dir == DOWN ? -dist : 0);
-    int x = actor->getX() + dx;
-    int y = actor->getY() + dy;
-    for (auto collider : m_actors)
-    {
-        if (!collider->isAlive())
-        {
-            continue;
-        }
-        if (collider != actor && collider->isCollidingWith(x, y))
-        {
-            if (is_solid == collider->isSolid())
-            { // TODO check
-                return collider;
-            }
-        }
-    }
-    return nullptr;
-}
-Actor *StudentWorld::willCollide(Actor *actor, Direction dir, int dist)
-{
-    Actor *collision = willCollide(actor, false, dir, dist);
-    if (collision == nullptr)
-    {
-        collision = willCollide(actor, true, dir, dist);
-    }
-    return collision;
-}
+
 void StudentWorld::setGameStatus()
 {
     std::ostringstream status;
@@ -113,7 +97,6 @@ int StudentWorld::init()
     std::ostringstream level_name;
     level_name.fill('0');
     level_name << "level" << std::setw(2) << getLevel() << ".txt";
-
     Level::LoadResult result = level.loadLevel(level_name.str());
     if (result == Level::load_fail_bad_format)
     {
@@ -125,7 +108,6 @@ int StudentWorld::init()
         std::cerr << "ERROR: level file doesn't exist (" << level_name.str() << ")" << std::endl;
         return GWSTATUS_LEVEL_ERROR;
     }
-
     for (int row = 0; row < GRID_HEIGHT; row++)
     {
         for (int col = 0; col < GRID_WIDTH; col++)
@@ -135,7 +117,6 @@ int StudentWorld::init()
             int y = row * SPRITE_HEIGHT;
             switch (ge)
             {
-
             case Level::peach:
                 m_peach = new Peach(x, y, this);
                 m_actors.push_back(m_peach);
@@ -159,7 +140,6 @@ int StudentWorld::init()
                 m_actors.push_back(new Flag(x, y, false, this));
                 break;
             case Level::mario:
-                m_on_last_level = true;
                 m_actors.push_back(new Flag(x, y, true, this));
                 break;
             case Level::goomba:
@@ -187,11 +167,13 @@ int StudentWorld::move()
             actor->doSomething(); // TODO peach check for dead actors (page 21 paragraph 2)
         }
     }
+
     if (!m_peach->isAlive())
     {
         decLives();
         return GWSTATUS_PLAYER_DIED;
     }
+
     for (auto it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if (!(*it)->isAlive())
@@ -200,6 +182,7 @@ int StudentWorld::move()
             it = m_actors.erase(it);
         }
     }
+
     setGameStatus();
 
     if (m_game_complete)
@@ -211,7 +194,6 @@ int StudentWorld::move()
         m_level_complete = false;
         return GWSTATUS_FINISHED_LEVEL;
     }
-
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -221,5 +203,5 @@ void StudentWorld::cleanUp()
     {
         delete actor;
     }
-    m_actors.clear(); // TODO check if needed
+    m_actors.clear();
 }

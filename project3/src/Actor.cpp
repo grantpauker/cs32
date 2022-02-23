@@ -3,14 +3,6 @@
 #include <cstdlib>
 
 #pragma region Actor
-Actor::Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world) : GraphObject(image_id, x, y, dir, depth, size), m_world(world), m_alive(true)
-{
-}
-
-void Actor::relativeMove(int dx, int dy)
-{
-    moveTo(getX() + dx, getY() + dy);
-}
 
 bool Actor::isCollidingWith(double x, double y)
 {
@@ -30,58 +22,57 @@ bool Actor::isCollidingWith(Actor *a)
     return isCollidingWith(a->getX(), a->getY());
 }
 
+void Actor::relativeMove(int dx, int dy)
+{
+    moveTo(getX() + dx, getY() + dy);
+}
+
 #pragma endregion Actor
 
 #pragma region Goodie
-// TODO separate classes
-Goodie::Goodie(int x, int y, GoodieType goodie_type, StudentWorld *world) : Actor(goodie_type == FLOWER ? IID_FLOWER : goodie_type == MUSHROOM ? IID_MUSHROOM
-                                                                                                                                               : IID_STAR,
-                                                                                  x, y, 0, 1, 1, world),
-                                                                            m_point_value(goodie_type == FLOWER ? 50 : goodie_type == MUSHROOM ? 75
-                                                                                                                                               : 100),
-                                                                            m_goodie_type(goodie_type)
-{
-}
+Goodie::Goodie(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, 0, 1, 1, world) {}
 void Goodie::doSomething()
 {
     if (getWorld()->isCollidingWithPeach(this))
     {
-        getWorld()->increaseScore(50);
-        getWorld()->givePeachPower(m_goodie_type);
-        if (m_goodie_type != STAR)
-        {
-            getWorld()->setPeachHP(2);
-        }
-        kill();
+        getWorld()->increaseScore(getPoints());
+        getWorld()->givePeachPower(getType());
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
+        kill();
         return;
     }
-    if (getWorld()->willCollide(this, true, Direction::DOWN, 2) == nullptr)
+    if (getWorld()->willCollide(this, 0, -2) == nullptr)
     {
         relativeMove(0, -2);
     }
     bool facing_right = getDirection() == 0;
-    if (facing_right)
+    int dx = facing_right ? 2 : -2;
+    int new_dir = facing_right ? 180 : 0;
+    if (getWorld()->willCollide(this, dx, 0) != nullptr)
     {
-        if (getWorld()->willCollide(this, true, Direction::RIGHT, 2) != nullptr)
-        {
-            setDirection(180);
-        }
-        else
-        {
-            relativeMove(2, 0);
-        }
+        setDirection(new_dir);
     }
-    else if (!facing_right)
+    else
     {
-        if (getWorld()->willCollide(this, true, Direction::LEFT, 2) != nullptr)
-        {
-            setDirection(0);
-        }
-        else
-        {
-            relativeMove(-2, 0);
-        }
+        relativeMove(dx, 0);
+    }
+}
+
+void Flower::doSomething()
+{
+    Goodie::doSomething();
+    if (getWorld()->isCollidingWithPeach(this))
+    {
+        getWorld()->setPeachHP(2);
+    }
+}
+
+void Mushroom::doSomething()
+{
+    Goodie::doSomething();
+    if (getWorld()->isCollidingWithPeach(this))
+    {
+        getWorld()->setPeachHP(2);
     }
 }
 #pragma endregion Goodie
@@ -122,10 +113,12 @@ void Peach::doSomething()
             m_recharging = false;
         }
     }
-    getWorld()->bonkAllCollisions(this, false);
+
+    getWorld()->bonkAllCollisions(this);
+
     if (m_remaining_jump_distance > 0)
     {
-        Actor *above = getWorld()->willCollide(this, true, Direction::UP, 4);
+        Actor *above = getWorld()->willCollide(this, 0, 4);
         if (above != nullptr)
         {
             above->bonk(this);
@@ -137,12 +130,11 @@ void Peach::doSomething()
             m_remaining_jump_distance--;
         }
     }
-    Actor *below = getWorld()->willCollide(this, true, Direction::DOWN, 4);
-    // TODO combine
-    if (m_remaining_jump_distance == 0 && below == nullptr)
+    else if (getWorld()->willCollide(this, 0, -4) == nullptr)
     {
         relativeMove(0, -4);
     }
+
     int key;
     if (getWorld()->getKey(key))
     {
@@ -150,29 +142,22 @@ void Peach::doSomething()
         {
         case KEY_PRESS_LEFT:
             setDirection(180);
-            if (getWorld()->willCollide(this, true, Direction::LEFT, 4) == nullptr)
+            if (getWorld()->willCollide(this, -4, 0) == nullptr)
             {
                 relativeMove(-4, 0);
             }
             break;
         case KEY_PRESS_RIGHT:
             setDirection(0);
-            if (getWorld()->willCollide(this, true, Direction::RIGHT, 4) == nullptr)
+            if (getWorld()->willCollide(this, 4, 0) == nullptr)
             {
                 relativeMove(4, 0);
             }
             break;
         case KEY_PRESS_UP:
-            if (getWorld()->willCollide(this, true, Direction::DOWN, 1) != nullptr)
+            if (getWorld()->willCollide(this, 0, -1) != nullptr)
             {
-                if (hasJump())
-                {
-                    m_remaining_jump_distance = 12;
-                }
-                else
-                {
-                    m_remaining_jump_distance = 8;
-                }
+                m_remaining_jump_distance = hasJump() ? 12 : 8;
                 getWorld()->playSound(SOUND_PLAYER_JUMP);
             }
             break;
@@ -183,7 +168,7 @@ void Peach::doSomething()
                 m_recharging = true;
                 m_recharge_ticks = 8;
                 int dx = (getDirection() == 0) ? 4 : -4;
-                getWorld()->addActor(new PeachFireball(getX() + dx, getY(), getDirection(), getWorld()));
+                getWorld()->addActor(new PeachProjectile(getX() + dx, getY(), getDirection(), true, getWorld()));
             }
 
             break;
@@ -219,15 +204,14 @@ void Peach::bonk(Actor *bonker)
     m_invincibility_ticks = 10;
     m_powers[0] = false;
     m_powers[1] = false;
-    if (m_hp >= 1)
-    {
-        getWorld()->playSound(SOUND_PLAYER_HURT);
-    }
-    else
+    if (m_hp == 0)
     {
         kill();
+        return;
     }
+    getWorld()->playSound(SOUND_PLAYER_HURT);
 }
+
 void Peach::damage()
 {
     bonk(nullptr);
@@ -239,25 +223,24 @@ Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(bl
 {
     m_released_goodie = false;
 }
+
 void Block::bonk(Actor *bonker)
 {
     if (!m_released_goodie && m_block_type != Block::NONE && m_block_type != Block::PIPE)
     {
         m_released_goodie = true;
-        Goodie::GoodieType goodie_type;
         if (m_block_type == BlockType::FLOWER)
         {
-            goodie_type = Goodie::GoodieType::FLOWER;
+            getWorld()->addActor(new Flower(getX(), getY() + 8, getWorld()));
         }
         else if (m_block_type == BlockType::MUSHROOM)
         {
-            goodie_type = Goodie::GoodieType::MUSHROOM;
+            getWorld()->addActor(new Mushroom(getX(), getY() + 8, getWorld()));
         }
         else if (m_block_type == BlockType::STAR)
         {
-            goodie_type = Goodie::GoodieType::STAR;
+            getWorld()->addActor(new Star(getX(), getY() + 8, getWorld()));
         }
-        getWorld()->addActor(new Goodie(getX(), getY() + 8, goodie_type, getWorld()));
         getWorld()->playSound(SOUND_POWERUP_APPEARS);
     }
     else
@@ -268,10 +251,6 @@ void Block::bonk(Actor *bonker)
 #pragma endregion Block
 
 #pragma region Flag
-Flag::Flag(int x, int y, bool is_final, StudentWorld *world) : Actor(is_final ? IID_MARIO : IID_FLAG, x, y, 0, 1, 1, world), m_is_final(is_final)
-{
-}
-
 void Flag::doSomething()
 {
     if (!isAlive())
@@ -295,51 +274,30 @@ void Flag::doSomething()
 #pragma endregion Flag
 
 #pragma region Projectile
-// TODO projectile should pass over eachother
-Projectile::Projectile(int x, int y, int dir, int id, StudentWorld *world) : Actor(id, x, y, dir, 1, 1, world)
-{
-}
-
 void Projectile::doSomething()
 {
-    if (getWorld()->willCollide(this, true, Direction::DOWN, 2) == nullptr)
+    if (getWorld()->willCollide(this, 0, -2) == nullptr)
     {
         relativeMove(0, -2);
     }
     bool facing_right = getDirection() == 0;
-    if (facing_right)
+    int dx = facing_right ? 2 : -2;
+    if (getWorld()->willCollide(this, dx, 0) != nullptr)
     {
-        if (getWorld()->willCollide(this, true, Direction::RIGHT, 4) != nullptr)
-        {
-            kill();
-        }
-        else
-        {
-            relativeMove(2, 0);
-        }
+        kill();
     }
-    else if (!facing_right)
+    else
     {
-        if (getWorld()->willCollide(this, true, Direction::LEFT, 2) != nullptr)
-        {
-            kill();
-        }
-        else
-        {
-            relativeMove(-2, 0);
-        }
+        relativeMove(dx, 0);
     }
 }
-void PeachFireball::doSomething()
+
+void PeachProjectile::doSomething()
 {
     getWorld()->damageAllCollisions(this, true, true);
     Projectile::doSomething();
 }
-void Shell::doSomething()
-{
-    getWorld()->damageAllCollisions(this, true, true);
-    Projectile::doSomething();
-}
+
 void PiranhaFireball::doSomething()
 {
     if (getWorld()->isCollidingWithPeach(this))
@@ -353,7 +311,7 @@ void PiranhaFireball::doSomething()
 #pragma endregion Projectile
 
 #pragma region Enemies
-void MovingEnemy::doSomething()
+void Enemy::doSomething()
 {
     if (!isAlive())
     {
@@ -362,28 +320,10 @@ void MovingEnemy::doSomething()
     if (getWorld()->isCollidingWithPeach(this))
     {
         getWorld()->bonkPeach(this);
-        return;
-    }
-    bool facing_right = getDirection() == 0;
-    Direction direction_check = facing_right ? Direction::RIGHT : Direction::LEFT;
-    int dx = facing_right ? 1 : -1;
-    int new_dir = facing_right ? 180 : 0;
-    if (getWorld()->willCollide(this, true, Direction::DOWN, 1) == nullptr)
-    {
-        // TODO overhand doesn't really work
-        setDirection(new_dir);
-        dx *= -1;
-    }
-    if (getWorld()->willCollide(this, true, direction_check, 1) != nullptr)
-    {
-        setDirection(new_dir);
-    }
-    else
-    {
-        relativeMove(dx, 0);
     }
 }
-void MovingEnemy::bonk(Actor *bonker)
+
+void Enemy::bonk(Actor *bonker)
 {
     if (!getWorld()->isPeach(bonker))
     {
@@ -392,43 +332,59 @@ void MovingEnemy::bonk(Actor *bonker)
     if (getWorld()->isPeachHaveStar())
     {
         getWorld()->playSound(SOUND_PLAYER_KICK);
-        MovingEnemy::damage();
+        Enemy::damage();
     }
 }
-void MovingEnemy::damage()
+
+void Enemy::damage()
 {
     getWorld()->increaseScore(100);
     kill();
 }
-void Koopa::bonk(Actor *bonker)
+
+void MovingEnemy::doSomething()
 {
-    MovingEnemy::bonk(bonker);
-    if (!isAlive())
+    Enemy::doSomething();
+    bool facing_right = getDirection() == 0;
+    int dx = facing_right ? 1 : -1;
+    int new_dir = facing_right ? 180 : 0;
+    if (getWorld()->isHangingOverEdge(this))
     {
-        getWorld()->addActor(new Shell(getX(), getY(), getDirection(), getWorld()));
+        setDirection(new_dir);
+        dx *= -1;
+    }
+    if (getWorld()->willCollide(this, dx, 0) != nullptr)
+    {
+        setDirection(new_dir);
+    }
+    else
+    {
+        relativeMove(dx, 0);
     }
 }
+
+void Koopa::bonk(Actor *bonker)
+{
+    Enemy::bonk(bonker);
+    if (!isAlive())
+    {
+        getWorld()->addActor(new PeachProjectile(getX(), getY(), getDirection(), false, getWorld()));
+    }
+}
+
 void Koopa::damage()
 {
     MovingEnemy::damage();
     if (!isAlive())
     {
-        getWorld()->addActor(new Shell(getX(), getY(), getDirection(), getWorld()));
+        getWorld()->addActor(new PeachProjectile(getX(), getY(), getDirection(), false, getWorld()));
     }
 }
+
 void Piranha::doSomething()
 {
-    if (!isAlive())
-    {
-        return;
-    }
+    Enemy::doSomething();
     increaseAnimationNumber();
-
-    if (getWorld()->isCollidingWithPeach(this))
-    {
-        getWorld()->bonkPeach(this);
-        return;
-    }
     if (!getWorld()->isNearPeach(this))
     {
         return;
@@ -447,19 +403,5 @@ void Piranha::doSomething()
         getWorld()->playSound(SOUND_PIRANHA_FIRE);
         m_firing_delay = 40;
     }
-}
-void Piranha::bonk(Actor *bonker){
-    if(getWorld()->isPeach(bonker)){
-        return;
-    }
-    if(getWorld()->isPeachHaveStar()){
-        getWorld()->playSound(SOUND_PLAYER_KICK);
-        damage();
-    }
-
-}
-void Piranha::damage(){
-    getWorld()->increaseScore(100);
-    kill();
 }
 #pragma endregion Enemies
