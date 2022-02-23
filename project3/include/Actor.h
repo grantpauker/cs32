@@ -125,11 +125,11 @@ private:
 };
 #pragma endregion Flag
 
-#pragma region Fireball
-class Fireball : public Actor
+#pragma region Projectile
+class Projectile : public Actor
 {
 public:
-    Fireball(int x, int y, int dir, bool is_shell, StudentWorld *world);
+    Projectile(int x, int y, int dir, int id, StudentWorld *world);
     virtual void doSomething();
     virtual void bonk(Actor *bonker) {}
     virtual void damage() {}
@@ -137,20 +137,73 @@ public:
 private:
 };
 
-#pragma endregion Fireball
+class PeachFireball : public Projectile
+{
+
+public:
+    PeachFireball(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_PEACH_FIRE, world) {}
+    virtual void doSomething();
+};
+
+class Shell : public Projectile
+{
+
+public:
+    Shell(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_SHELL, world) {}
+    virtual void doSomething();
+};
+
+class PiranhaFireball : public Projectile
+{
+
+public:
+    PiranhaFireball(int x, int y, int dir, StudentWorld *world) : Projectile(x, y, dir, IID_PIRANHA_FIRE, world) {}
+    virtual void doSomething();
+};
+#pragma endregion Projectile
 
 #pragma region Goomba
-class Goomba : public Actor
+class MovingEnemy : public Actor
 {
 public:
-    Goomba(int x, int y, StudentWorld *world);
+    MovingEnemy(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, randInt(0, 1) * 180, 0, 1, world) {}
 
     virtual void doSomething();
     virtual void bonk(Actor *bonker);
     virtual void damage();
     virtual bool isDamageable() { return true; }
 };
+class Goomba : public MovingEnemy
+{
+public:
+    Goomba(int x, int y, StudentWorld *world) : MovingEnemy(x, y, IID_GOOMBA, world) {}
+};
 
 #pragma endregion Goomba
+
+#pragma region Koopa
+class Koopa : public MovingEnemy
+{
+public:
+    Koopa(int x, int y, StudentWorld *world) : MovingEnemy(x, y, IID_KOOPA, world) {}
+
+    virtual void bonk(Actor *bonker);
+    virtual void damage();
+};
+
+class Piranha : public Actor
+{
+public:
+    Piranha(int x, int y, StudentWorld *world) : Actor(IID_PIRANHA, x, y, randInt(0, 1) * 180, 0, 1, world) {}
+
+    virtual void doSomething();
+    virtual void bonk(Actor *bonker);
+    virtual void damage();
+    virtual bool isDamageable() { return true; }
+
+private:
+    int m_firing_delay;
+};
+#pragma endregion Koopa
 
 #endif // ACTOR_H

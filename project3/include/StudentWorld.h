@@ -33,8 +33,13 @@ public:
   void damageAllCollisions(Actor *damager, bool exclude_peach, bool die_on_impact);
   Actor *willCollide(Actor *actor, bool is_solid, Direction dir, int dist);
   Actor *willCollide(Actor *actor, Direction dir, int dist);
+  bool isHangingOverEdge(Actor *actor);
   bool isCollidingWithPeach(Actor *actor) { return actor->isCollidingWith(m_peach); }
+  bool isNearPeach(Actor *actor) { return abs(actor->getY() - 1.5 * SPRITE_HEIGHT) <= m_peach->getY(); }
+  int distanceToPeach(Actor *actor) { return actor->getX() - m_peach->getX(); }
   void bonkPeach(Actor *bonker) { m_peach->bonk(bonker); }
+  void damagePeach() { m_peach->damage(); }
+  bool isPeachHaveStar() { return m_peach->hasStar(); }
   void givePeachPower(Goodie::GoodieType goodie_type) { m_peach->givePower(goodie_type); }
   void setPeachHP(int hp) { m_peach->setHP(hp); }
 

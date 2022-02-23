@@ -41,6 +41,10 @@ void StudentWorld::damageAllCollisions(Actor *damager, bool exclude_peach, bool 
 {
     for (auto damaged : m_actors)
     {
+        if (!damaged->isAlive())
+        {
+            continue;
+        }
         if (exclude_peach && (damaged == m_peach))
         {
             continue;
@@ -59,9 +63,12 @@ Actor *StudentWorld::willCollide(Actor *actor, bool is_solid, Direction dir, int
     int dy = dir == UP ? dist : (dir == DOWN ? -dist : 0);
     int x = actor->getX() + dx;
     int y = actor->getY() + dy;
-    bool heyed = false;
     for (auto collider : m_actors)
     {
+        if (!collider->isAlive())
+        {
+            continue;
+        }
         if (collider != actor && collider->isCollidingWith(x, y))
         {
             if (is_solid == collider->isSolid())
@@ -126,46 +133,50 @@ int StudentWorld::init()
             Level::GridEntry ge = level.getContentsOf(col, row);
             int x = col * SPRITE_WIDTH;
             int y = row * SPRITE_HEIGHT;
-            if (ge == Level::peach)
+            switch (ge)
             {
+
+            case Level::peach:
                 m_peach = new Peach(x, y, this);
                 m_actors.push_back(m_peach);
-            }
-            else if (ge == Level::block)
-            {
+                break;
+            case Level::block:
                 m_actors.push_back(new Block(x, y, Block::NONE, this));
-            }
-            else if (ge == Level::mushroom_goodie_block)
-            {
+                break;
+            case Level::mushroom_goodie_block:
                 m_actors.push_back(new Block(x, y, Block::MUSHROOM, this));
-            }
-            else if (ge == Level::flower_goodie_block)
-            {
+                break;
+            case Level::flower_goodie_block:
                 m_actors.push_back(new Block(x, y, Block::FLOWER, this));
-            }
-            else if (ge == Level::star_goodie_block)
-            {
+                break;
+            case Level::star_goodie_block:
                 m_actors.push_back(new Block(x, y, Block::STAR, this));
-            }
-            else if (ge == Level::pipe)
-            {
+                break;
+            case Level::pipe:
                 m_actors.push_back(new Block(x, y, Block::PIPE, this));
-            }
-            else if (ge == Level::flag)
-            {
+                break;
+            case Level::flag:
                 m_actors.push_back(new Flag(x, y, false, this));
-            }
-            else if (ge == Level::mario)
-            {
+                break;
+            case Level::mario:
                 m_on_last_level = true;
                 m_actors.push_back(new Flag(x, y, true, this));
+                break;
+            case Level::goomba:
+                m_actors.push_back(new Goomba(x, y, this));
+                break;
+            case Level::koopa:
+                m_actors.push_back(new Koopa(x, y, this));
+                break;
+            case Level::piranha:
+                m_actors.push_back(new Piranha(x, y, this));
+                break;
             }
         }
     }
 
     return GWSTATUS_CONTINUE_GAME;
 }
-
 int StudentWorld::move()
 {
 
@@ -175,6 +186,11 @@ int StudentWorld::move()
         {
             actor->doSomething(); // TODO peach check for dead actors (page 21 paragraph 2)
         }
+    }
+    if (!m_peach->isAlive())
+    {
+        decLives();
+        return GWSTATUS_PLAYER_DIED;
     }
     for (auto it = m_actors.begin(); it != m_actors.end(); it++)
     {

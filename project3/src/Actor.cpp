@@ -31,6 +31,7 @@ bool Actor::isCollidingWith(Actor *a)
 }
 
 #pragma endregion Actor
+
 #pragma region Goodie
 // TODO separate classes
 Goodie::Goodie(int x, int y, GoodieType goodie_type, StudentWorld *world) : Actor(goodie_type == FLOWER ? IID_FLOWER : goodie_type == MUSHROOM ? IID_MUSHROOM
@@ -137,6 +138,7 @@ void Peach::doSomething()
         }
     }
     Actor *below = getWorld()->willCollide(this, true, Direction::DOWN, 4);
+    // TODO combine
     if (m_remaining_jump_distance == 0 && below == nullptr)
     {
         relativeMove(0, -4);
@@ -161,7 +163,7 @@ void Peach::doSomething()
             }
             break;
         case KEY_PRESS_UP:
-            if (getWorld()->willCollide(this, true, Direction::DOWN, 4) != nullptr)
+            if (getWorld()->willCollide(this, true, Direction::DOWN, 1) != nullptr)
             {
                 if (hasJump())
                 {
@@ -181,7 +183,7 @@ void Peach::doSomething()
                 m_recharging = true;
                 m_recharge_ticks = 8;
                 int dx = (getDirection() == 0) ? 4 : -4;
-                getWorld()->addActor(new Fireball(getX() + dx, getY(), getDirection(), false, getWorld()));
+                getWorld()->addActor(new PeachFireball(getX() + dx, getY(), getDirection(), getWorld()));
             }
 
             break;
@@ -207,8 +209,29 @@ void Peach::givePower(Goodie::GoodieType goodie)
     }
 }
 
-void Peach::bonk(Actor *bonker) {}
-void Peach::damage() {}
+void Peach::bonk(Actor *bonker)
+{
+    if (m_invincible)
+    {
+        return;
+    }
+    m_hp--;
+    m_invincibility_ticks = 10;
+    m_powers[0] = false;
+    m_powers[1] = false;
+    if (m_hp >= 1)
+    {
+        getWorld()->playSound(SOUND_PLAYER_HURT);
+    }
+    else
+    {
+        kill();
+    }
+}
+void Peach::damage()
+{
+    bonk(nullptr);
+}
 #pragma endregion Peach
 
 #pragma region Block
@@ -243,6 +266,7 @@ void Block::bonk(Actor *bonker)
     }
 }
 #pragma endregion Block
+
 #pragma region Flag
 Flag::Flag(int x, int y, bool is_final, StudentWorld *world) : Actor(is_final ? IID_MARIO : IID_FLAG, x, y, 0, 1, 1, world), m_is_final(is_final)
 {
@@ -270,14 +294,14 @@ void Flag::doSomething()
 }
 #pragma endregion Flag
 
-#pragma region Fireball
-Fireball::Fireball(int x, int y, int dir, bool is_shell, StudentWorld *world) : Actor(is_shell ? IID_SHELL : IID_PEACH_FIRE, x, y, dir, 1, 1, world)
+#pragma region Projectile
+// TODO projectile should pass over eachother
+Projectile::Projectile(int x, int y, int dir, int id, StudentWorld *world) : Actor(id, x, y, dir, 1, 1, world)
 {
 }
 
-void Fireball::doSomething()
+void Projectile::doSomething()
 {
-    getWorld()->damageAllCollisions(this, true, true);
     if (getWorld()->willCollide(this, true, Direction::DOWN, 2) == nullptr)
     {
         relativeMove(0, -2);
@@ -306,13 +330,30 @@ void Fireball::doSomething()
         }
     }
 }
-#pragma endregion Fireball
-
-#pragma region Goomba
-Goomba::Goomba(int x, int y, StudentWorld *world) : Actor(IID_GOOMBA, x, y, 0, 0, 1, world) // TODO make dir random
+void PeachFireball::doSomething()
 {
+    getWorld()->damageAllCollisions(this, true, true);
+    Projectile::doSomething();
 }
-void Goomba::doSomething()
+void Shell::doSomething()
+{
+    getWorld()->damageAllCollisions(this, true, true);
+    Projectile::doSomething();
+}
+void PiranhaFireball::doSomething()
+{
+    if (getWorld()->isCollidingWithPeach(this))
+    {
+        getWorld()->damagePeach();
+        kill();
+        return;
+    }
+    Projectile::doSomething();
+}
+#pragma endregion Projectile
+
+#pragma region Enemies
+void MovingEnemy::doSomething()
 {
     if (!isAlive())
     {
@@ -324,32 +365,101 @@ void Goomba::doSomething()
         return;
     }
     bool facing_right = getDirection() == 0;
-    // TODO check overhangs
-    if (facing_right)
+    Direction direction_check = facing_right ? Direction::RIGHT : Direction::LEFT;
+    int dx = facing_right ? 1 : -1;
+    int new_dir = facing_right ? 180 : 0;
+    if (getWorld()->willCollide(this, true, Direction::DOWN, 1) == nullptr)
     {
-        if (getWorld()->willCollide(this, true, Direction::RIGHT, 1) != nullptr)
-        {
-            setDirection(180);
-        }
-        else
-        {
-            relativeMove(1, 0);
-        }
+        // TODO overhand doesn't really work
+        setDirection(new_dir);
+        dx *= -1;
     }
-    else if (!facing_right)
+    if (getWorld()->willCollide(this, true, direction_check, 1) != nullptr)
     {
-        if (getWorld()->willCollide(this, true, Direction::LEFT, 1) != nullptr)
-        {
-            setDirection(0);
-        }
-        else
-        {
-            relativeMove(-1, 0);
-        }
+        setDirection(new_dir);
+    }
+    else
+    {
+        relativeMove(dx, 0);
     }
 }
-void Goomba::bonk(Actor *bonker)
+void MovingEnemy::bonk(Actor *bonker)
 {
+    if (!getWorld()->isPeach(bonker))
+    {
+        return;
+    }
+    if (getWorld()->isPeachHaveStar())
+    {
+        getWorld()->playSound(SOUND_PLAYER_KICK);
+        MovingEnemy::damage();
+    }
 }
-void Goomba::damage() {}
-#pragma endregion Goomba
+void MovingEnemy::damage()
+{
+    getWorld()->increaseScore(100);
+    kill();
+}
+void Koopa::bonk(Actor *bonker)
+{
+    MovingEnemy::bonk(bonker);
+    if (!isAlive())
+    {
+        getWorld()->addActor(new Shell(getX(), getY(), getDirection(), getWorld()));
+    }
+}
+void Koopa::damage()
+{
+    MovingEnemy::damage();
+    if (!isAlive())
+    {
+        getWorld()->addActor(new Shell(getX(), getY(), getDirection(), getWorld()));
+    }
+}
+void Piranha::doSomething()
+{
+    if (!isAlive())
+    {
+        return;
+    }
+    increaseAnimationNumber();
+
+    if (getWorld()->isCollidingWithPeach(this))
+    {
+        getWorld()->bonkPeach(this);
+        return;
+    }
+    if (!getWorld()->isNearPeach(this))
+    {
+        return;
+    }
+    int distance_to_peach = getWorld()->distanceToPeach(this);
+    int dir = distance_to_peach > 0 ? 180 : 0;
+    setDirection(dir);
+    if (m_firing_delay >= 0)
+    {
+        m_firing_delay--;
+        return;
+    }
+    if (abs(distance_to_peach) < 8 * SPRITE_WIDTH)
+    {
+        getWorld()->addActor(new PiranhaFireball(getX(), getY(), getDirection(), getWorld()));
+        getWorld()->playSound(SOUND_PIRANHA_FIRE);
+        m_firing_delay = 40;
+    }
+}
+void Piranha::bonk(Actor *bonker){
+    if(getWorld()->isPeach(bonker)){
+        return;
+    }
+    if(getWorld()->isPeachHaveStar()){
+        getWorld()->playSound(SOUND_PLAYER_KICK);
+        damage();
+    }
+
+}
+void Piranha::damage(){
+    getWorld()->increaseScore(100);
+    kill();
+}
+#pragma endregion Enemies
