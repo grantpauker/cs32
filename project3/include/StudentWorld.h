@@ -30,7 +30,7 @@ public:
 
   bool isPeach(Actor *actor) { return actor == m_peach; }
   bool isPeachHaveStar() { return m_peach->hasStar(); }
-  bool isNearPeach(Actor *actor) { return abs(actor->getY() - 1.5 * SPRITE_HEIGHT) <= m_peach->getY(); }
+  bool isNearPeach(Actor *actor) { return abs(actor->getY() - m_peach->getY()) <= 1.5 * SPRITE_WIDTH; }
   bool isCollidingWithPeach(Actor *actor) { return actor->isCollidingWith(m_peach); }
   bool isHangingOverEdge(Actor *actor);
   int distanceToPeach(Actor *actor) { return actor->getX() - m_peach->getX(); }

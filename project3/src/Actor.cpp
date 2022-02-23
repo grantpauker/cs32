@@ -345,6 +345,9 @@ void Enemy::damage()
 void MovingEnemy::doSomething()
 {
     Enemy::doSomething();
+    if(!isAlive()){
+        return;
+    }
     bool facing_right = getDirection() == 0;
     int dx = facing_right ? 1 : -1;
     int new_dir = facing_right ? 180 : 0;
@@ -384,6 +387,9 @@ void Koopa::damage()
 void Piranha::doSomething()
 {
     Enemy::doSomething();
+    if(!isAlive()){
+        return;
+    }
     increaseAnimationNumber();
     if (!getWorld()->isNearPeach(this))
     {

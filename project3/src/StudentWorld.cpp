@@ -26,8 +26,8 @@ StudentWorld::~StudentWorld()
 
 bool StudentWorld::isHangingOverEdge(Actor *actor)
 {
-    // TODO fix
-    return willCollide(actor, 0, -1) == nullptr;
+    int dx = actor->getDirection() == 0 ? -SPRITE_WIDTH : SPRITE_WIDTH;
+    return willCollide(actor, -dx, -1) == nullptr;
 }
 
 Actor *StudentWorld::willCollide(Actor *actor, int dx, int dy)
@@ -164,7 +164,7 @@ int StudentWorld::move()
     {
         if (actor->isAlive())
         {
-            actor->doSomething(); // TODO peach check for dead actors (page 21 paragraph 2)
+            actor->doSomething();
         }
     }
 
