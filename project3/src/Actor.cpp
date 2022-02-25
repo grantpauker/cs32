@@ -158,8 +158,8 @@ void Peach::doSomething()
             break;
         case KEY_PRESS_RIGHT:
             setDirection(0);
-            collision = getWorld()->willCollide(this, -4, 0);
-            if (getWorld()->willCollide(this, 4, 0) == nullptr)
+            collision = getWorld()->willCollide(this, 4, 0);
+            if (collision == nullptr)
             {
                 relativeMove(4, 0);
             }
@@ -169,7 +169,8 @@ void Peach::doSomething()
             }
             break;
         case KEY_PRESS_UP:
-            if (getWorld()->willCollide(this, 0, -1) != nullptr)
+            collision = getWorld()->willCollide(this, 0, -1) ;
+            if (collision!= nullptr)
             {
                 m_remaining_jump_distance = hasJump() ? 12 : 8;
                 getWorld()->playSound(SOUND_PLAYER_JUMP);
@@ -239,6 +240,7 @@ Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(bl
 
 void Block::bonk(Actor *bonker)
 {
+    std::cout << (m_block_type == NONE) << std::endl;
     if (!m_released_goodie && m_block_type != Block::NONE && m_block_type != Block::PIPE)
     {
         m_released_goodie = true;
