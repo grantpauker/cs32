@@ -30,7 +30,9 @@ void Actor::relativeMove(int dx, int dy)
 #pragma endregion Actor
 
 #pragma region Goodie
-Goodie::Goodie(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, 0, 1, 1, world) {}
+Goodie::Goodie(int x, int y, int id, StudentWorld *world) : Actor(id, x, y, 0, 1, 1, world)
+{
+}
 void Goodie::doSomething()
 {
     if (getWorld()->isCollidingWithPeach(this))
@@ -81,9 +83,9 @@ void Mushroom::doSomething()
 Peach::Peach(int x_start, int y_start, StudentWorld *world) : Actor(IID_PEACH, x_start, y_start, 0, 0, 1, world)
 {
     m_hp = 1;
-    m_invincible = false;
     m_recharging = false;
-    m_invincibility_ticks = 0;
+    m_temp_invincibility_ticks = 0;
+    m_star_power_ticks = 0;
     m_recharge_ticks = 0;
     for (int i = 0; i < 3; i++)
     {
@@ -97,21 +99,21 @@ void Peach::doSomething()
     {
         return;
     }
-    if (isInvincible())
+    if (m_star_power_ticks > 0)
     {
-        m_invincibility_ticks--;
-        if (m_invincibility_ticks == 0)
+        m_star_power_ticks--;
+        if (m_star_power_ticks == 0)
         {
-            m_invincible = false;
+            m_powers[2] = false;
         }
     }
-    if (m_recharging)
+    if (m_temp_invincibility_ticks > 0)
+    {
+        m_temp_invincibility_ticks--;
+    }
+    if (m_recharge_ticks > 0)
     {
         m_recharge_ticks--;
-        if (m_recharge_ticks == 0)
-        {
-            m_recharging = false;
-        }
     }
 
     getWorld()->bonkAllCollisions(this);
@@ -138,20 +140,32 @@ void Peach::doSomething()
     int key;
     if (getWorld()->getKey(key))
     {
+        Actor *collision = nullptr;
         switch (key)
         {
         case KEY_PRESS_LEFT:
+
             setDirection(180);
-            if (getWorld()->willCollide(this, -4, 0) == nullptr)
+            collision = getWorld()->willCollide(this, -4, 0);
+            if (collision == nullptr)
             {
                 relativeMove(-4, 0);
+            }
+            else
+            {
+                collision->bonk(this);
             }
             break;
         case KEY_PRESS_RIGHT:
             setDirection(0);
+            collision = getWorld()->willCollide(this, -4, 0);
             if (getWorld()->willCollide(this, 4, 0) == nullptr)
             {
                 relativeMove(4, 0);
+            }
+            else
+            {
+                collision->bonk(this);
             }
             break;
         case KEY_PRESS_UP:
@@ -189,19 +203,18 @@ void Peach::givePower(Goodie::GoodieType goodie)
     else if (goodie == Goodie::STAR)
     {
         m_powers[2] = true;
-        m_invincible = true;
-        m_invincibility_ticks = 150;
+        m_star_power_ticks = 150;
     }
 }
 
 void Peach::bonk(Actor *bonker)
 {
-    if (m_invincible)
+    if (isInvincible())
     {
         return;
     }
     m_hp--;
-    m_invincibility_ticks = 10;
+    m_temp_invincibility_ticks = 10;
     m_powers[0] = false;
     m_powers[1] = false;
     if (m_hp == 0)
@@ -345,7 +358,8 @@ void Enemy::damage()
 void MovingEnemy::doSomething()
 {
     Enemy::doSomething();
-    if(!isAlive()){
+    if (!isAlive())
+    {
         return;
     }
     bool facing_right = getDirection() == 0;
@@ -387,7 +401,8 @@ void Koopa::damage()
 void Piranha::doSomething()
 {
     Enemy::doSomething();
-    if(!isAlive()){
+    if (!isAlive())
+    {
         return;
     }
     increaseAnimationNumber();

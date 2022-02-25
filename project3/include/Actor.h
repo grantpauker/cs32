@@ -15,7 +15,6 @@ public:
     virtual void doSomething() = 0;
     virtual void bonk(Actor *bonker) = 0;
     virtual void damage() = 0;
-    virtual bool isBonkable() { return true; } // TODO check if necessary
     virtual bool isSolid() { return false; }
     virtual bool isDamageable() { return false; }
 
@@ -96,7 +95,7 @@ public:
     virtual void bonk(Actor *bonker);
     virtual void damage();
 
-    bool isInvincible() { return m_invincible; }
+    bool isInvincible() { return m_powers[2] || m_temp_invincibility_ticks > 0; }
     bool isRecharghing() { return m_recharging; }
 
     void setHP(int hp) { m_hp = hp; }
@@ -108,8 +107,8 @@ public:
 
 private:
     int m_hp;
-    bool m_invincible;
-    int m_invincibility_ticks;
+    int m_temp_invincibility_ticks;
+    int m_star_power_ticks;
     bool m_recharging;
     int m_recharge_ticks;
     bool m_powers[3]; // shoot, jump, star

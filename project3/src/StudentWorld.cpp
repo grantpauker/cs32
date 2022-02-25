@@ -75,7 +75,8 @@ void StudentWorld::damageAllCollisions(Actor *damager, bool exclude_peach, bool 
 void StudentWorld::setGameStatus()
 {
     std::ostringstream status;
-    status << "Lives: " << getLives() << "  Level: " << getLevel() << "  Points: " << getScore() << " ";
+    status.fill('0');
+    status << "Lives: " << getLives() << "  Level: " << std::setw(2) << getLevel() << "  Points: " << std::setw(5) << getScore() << " ";
     if (m_peach->hasStar())
     {
         status << "Star Power! ";

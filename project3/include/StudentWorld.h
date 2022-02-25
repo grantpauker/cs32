@@ -7,13 +7,6 @@
 #include <list>
 #include <string>
 
-enum Direction
-{
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN
-};
 class StudentWorld : public GameWorld
 {
 public:
