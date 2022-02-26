@@ -3,8 +3,7 @@
 #include <cstdlib>
 
 #pragma region Actor
-
-bool Actor::isCollidingWith(double x, double y)
+bool Actor::isCollidingWith(double x, double y) const
 {
     if (getX() + SPRITE_WIDTH - 1 < x || x + SPRITE_WIDTH - 1 < getX())
     {
@@ -17,7 +16,7 @@ bool Actor::isCollidingWith(double x, double y)
     return true;
 }
 
-bool Actor::isCollidingWith(Actor *a)
+bool Actor::isCollidingWith(Actor *a) const
 {
     return isCollidingWith(a->getX(), a->getY());
 }
@@ -26,7 +25,6 @@ void Actor::relativeMove(int dx, int dy)
 {
     moveTo(getX() + dx, getY() + dy);
 }
-
 #pragma endregion Actor
 
 #pragma region Goodie
@@ -191,23 +189,6 @@ void Peach::doSomething()
     }
 }
 
-void Peach::givePower(Goodie::GoodieType goodie)
-{
-    if (goodie == Goodie::GoodieType::FLOWER)
-    {
-        m_powers[0] = true;
-    }
-    else if (goodie == Goodie::MUSHROOM)
-    {
-        m_powers[1] = true;
-    }
-    else if (goodie == Goodie::STAR)
-    {
-        m_powers[2] = true;
-        m_star_power_ticks = 150;
-    }
-}
-
 void Peach::bonk(Actor *bonker)
 {
     if (isInvincible())
@@ -230,6 +211,23 @@ void Peach::damage()
 {
     bonk(nullptr);
 }
+
+void Peach::givePower(Goodie::GoodieType goodie)
+{
+    if (goodie == Goodie::GoodieType::FLOWER)
+    {
+        m_powers[0] = true;
+    }
+    else if (goodie == Goodie::MUSHROOM)
+    {
+        m_powers[1] = true;
+    }
+    else if (goodie == Goodie::STAR)
+    {
+        m_powers[2] = true;
+        m_star_power_ticks = 150;
+    }
+}
 #pragma endregion Peach
 
 #pragma region Block
@@ -240,7 +238,6 @@ Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(bl
 
 void Block::bonk(Actor *bonker)
 {
-    std::cout << (m_block_type == NONE) << std::endl;
     if (!m_released_goodie && m_block_type != Block::NONE && m_block_type != Block::PIPE)
     {
         m_released_goodie = true;

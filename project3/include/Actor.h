@@ -13,16 +13,16 @@ public:
     Actor(int image_id, int x, int y, int dir, int depth, int size, StudentWorld *world) : GraphObject(image_id, x, y, dir, depth, size), m_world(world), m_alive(true) {}
 
     virtual void doSomething() = 0;
-    virtual void bonk(Actor *bonker) = 0;
-    virtual void damage() = 0;
-    virtual bool isSolid() { return false; }
-    virtual bool isDamageable() { return false; }
+    virtual void bonk(Actor *bonker) {}
+    virtual void damage() {}
+    virtual bool isSolid() const { return false; }
+    virtual bool isDamageable() const { return false; }
 
-    bool isAlive() { return m_alive; }
-    StudentWorld *getWorld() { return m_world; }
+    bool isAlive() const { return m_alive; }
+    StudentWorld *getWorld() const { return m_world; }
 
-    bool isCollidingWith(double x, double y);
-    bool isCollidingWith(Actor *a);
+    bool isCollidingWith(double x, double y) const;
+    bool isCollidingWith(Actor *a) const;
 
     void kill() { m_alive = false; }
     void relativeMove(int dx, int dy);
@@ -45,12 +45,10 @@ public:
     };
     Goodie(int x, int y, int id, StudentWorld *world);
 
-    virtual GoodieType getType() = 0;
-    virtual int getPoints() = 0;
+    virtual GoodieType getType() const = 0;
+    virtual int getPoints() const = 0;
 
     virtual void doSomething();
-    virtual void bonk(Actor *bonker) {}
-    virtual void damage() {}
 };
 
 class Flower : public Goodie
@@ -58,8 +56,8 @@ class Flower : public Goodie
 public:
     Flower(int x, int y, StudentWorld *world) : Goodie(x, y, IID_FLOWER, world) {}
 
-    virtual GoodieType getType() { return FLOWER; }
-    virtual int getPoints() { return 50; }
+    virtual GoodieType getType() const { return FLOWER; }
+    virtual int getPoints() const { return 50; }
 
     virtual void doSomething();
 };
@@ -69,8 +67,8 @@ class Mushroom : public Goodie
 public:
     Mushroom(int x, int y, StudentWorld *world) : Goodie(x, y, IID_MUSHROOM, world) {}
 
-    virtual GoodieType getType() { return MUSHROOM; }
-    virtual int getPoints() { return 75; }
+    virtual GoodieType getType() const { return MUSHROOM; }
+    virtual int getPoints() const { return 75; }
 
     virtual void doSomething();
 };
@@ -80,8 +78,8 @@ class Star : public Goodie
 public:
     Star(int x, int y, StudentWorld *world) : Goodie(x, y, IID_STAR, world) {}
 
-    virtual GoodieType getType() { return STAR; }
-    virtual int getPoints() { return 100; }
+    virtual GoodieType getType() const { return STAR; }
+    virtual int getPoints() const { return 100; }
 };
 #pragma endregion Goodie
 
@@ -95,15 +93,14 @@ public:
     virtual void bonk(Actor *bonker);
     virtual void damage();
 
-    bool isInvincible() { return m_powers[2] || m_temp_invincibility_ticks > 0; }
-    bool isRecharghing() { return m_recharging; }
+    bool isInvincible() const { return m_powers[2] || m_temp_invincibility_ticks > 0; }
 
     void setHP(int hp) { m_hp = hp; }
     void givePower(Goodie::GoodieType goodie);
 
-    bool hasShoot() { return m_powers[0]; }
-    bool hasJump() { return m_powers[1]; }
-    bool hasStar() { return m_powers[2]; }
+    bool hasShoot() const { return m_powers[0]; }
+    bool hasJump() const { return m_powers[1]; }
+    bool hasStar() const { return m_powers[2]; }
 
 private:
     int m_hp;
@@ -131,9 +128,8 @@ public:
     Block(int x, int y, BlockType block_type, StudentWorld *world);
     virtual void doSomething() {}
     virtual void bonk(Actor *bonker);
-    virtual void damage() {}
 
-    virtual bool isSolid() { return true; }
+    virtual bool isSolid() const { return true; }
 
 private:
     BlockType m_block_type;
@@ -147,8 +143,6 @@ class Flag : public Actor
 public:
     Flag(int x, int y, bool is_final, StudentWorld *world) : Actor(is_final ? IID_MARIO : IID_FLAG, x, y, 0, 1, 1, world), m_is_final(is_final) {}
     virtual void doSomething();
-    virtual void bonk(Actor *bonker) {}
-    virtual void damage() {}
 
 private:
     bool m_is_final;
@@ -161,8 +155,6 @@ class Projectile : public Actor
 public:
     Projectile(int x, int y, int dir, int id, StudentWorld *world) : Actor(id, x, y, dir, 1, 1, world) {}
     virtual void doSomething();
-    virtual void bonk(Actor *bonker) {}
-    virtual void damage() {}
 };
 
 class PeachProjectile : public Projectile
@@ -189,7 +181,7 @@ public:
     virtual void doSomething();
     virtual void bonk(Actor *bonker);
     virtual void damage();
-    virtual bool isDamageable() { return true; }
+    virtual bool isDamageable() const { return true; }
 };
 
 class MovingEnemy : public Enemy
