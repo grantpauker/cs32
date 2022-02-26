@@ -36,11 +36,6 @@ const int SOUND_GAME_OVER = 9;
 const int SOUND_PIRANHA_FIRE = 10;
 const int SOUND_THEME = 11;
 const int SOUND_NONE = -1;
-/* TODO DELETE */
-#include <map>
-#include <string>
-static std::map<int, std::string> SOUNDS = {{0, "SOUND_PLAYER_DIE"}, {1, "SOUND_PLAYER_FIRE"}, {2, "SOUND_PLAYER_HURT"}, {3, "SOUND_PLAYER_JUMP"}, {4, "SOUND_PLAYER_BONK"}, {5, "SOUND_PLAYER_POWERUP"}, {6, "SOUND_POWERUP_APPEARS"}, {7, "SOUND_PLAYER_KICK"}, {8, "SOUND_FINISHED_LEVEL"}, {9, "SOUND_GAME_OVER"}, {10, "SOUND_PIRANHA_FIRE"}, {11, "SOUND_THEME"}, {-1, "SOUND_NONE"}};
-/* TODO DELETE */
 
 // keys the user can hit
 

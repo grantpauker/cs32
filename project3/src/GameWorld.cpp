@@ -18,7 +18,6 @@ bool GameWorld::getKey(int &value)
 
 void GameWorld::playSound(int soundID)
 {
-	//std::cout << "PLAYING SOUND: " << SOUNDS[soundID] << std::endl; // TODO DELETE
 	m_controller->playSound(soundID);
 }
 
