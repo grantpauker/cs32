@@ -94,6 +94,7 @@ void StudentWorld::setGameStatus()
 
 int StudentWorld::init()
 {
+    m_level_complete = false;
     Level level(assetPath());
     std::ostringstream level_name;
     level_name.fill('0');
@@ -166,13 +167,23 @@ int StudentWorld::move()
         if (actor->isAlive())
         {
             actor->doSomething();
+            if (!m_peach->isAlive())
+            {
+                decLives();
+                playSound(SOUND_PLAYER_DIE);
+                return GWSTATUS_PLAYER_DIED;
+            }
+            if (m_game_complete)
+            {
+                playSound(SOUND_GAME_OVER);
+                return GWSTATUS_PLAYER_WON;
+            }
+            if (m_level_complete)
+            {
+                playSound(SOUND_FINISHED_LEVEL);
+                return GWSTATUS_FINISHED_LEVEL;
+            }
         }
-    }
-
-    if (!m_peach->isAlive())
-    {
-        decLives();
-        return GWSTATUS_PLAYER_DIED;
     }
 
     for (auto it = m_actors.begin(); it != m_actors.end(); it++)
@@ -186,15 +197,6 @@ int StudentWorld::move()
 
     setGameStatus();
 
-    if (m_game_complete)
-    {
-        return GWSTATUS_PLAYER_WON;
-    }
-    if (m_level_complete)
-    {
-        m_level_complete = false;
-        return GWSTATUS_FINISHED_LEVEL;
-    }
     return GWSTATUS_CONTINUE_GAME;
 }
 

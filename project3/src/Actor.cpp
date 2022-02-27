@@ -78,10 +78,9 @@ void Mushroom::doSomething()
 #pragma endregion Goodie
 
 #pragma region Peach
-Peach::Peach(int x_start, int y_start, StudentWorld *world) : Actor(IID_PEACH, x_start, y_start, 0, 0, 1, world)
+Peach::Peach(int x, int y, StudentWorld *world) : Actor(IID_PEACH, x, y, 0, 0, 1, world)
 {
     m_hp = 1;
-    m_recharging = false;
     m_temp_invincibility_ticks = 0;
     m_star_power_ticks = 0;
     m_recharge_ticks = 0;
@@ -130,7 +129,7 @@ void Peach::doSomething()
             m_remaining_jump_distance--;
         }
     }
-    else if (getWorld()->willCollide(this, 0, -4) == nullptr)
+    else if (getWorld()->willCollide(this, 0, -3) == nullptr)
     {
         relativeMove(0, -4);
     }
@@ -167,8 +166,8 @@ void Peach::doSomething()
             }
             break;
         case KEY_PRESS_UP:
-            collision = getWorld()->willCollide(this, 0, -1) ;
-            if (collision!= nullptr)
+            collision = getWorld()->willCollide(this, 0, -1);
+            if (collision != nullptr)
             {
                 m_remaining_jump_distance = hasJump() ? 12 : 8;
                 getWorld()->playSound(SOUND_PLAYER_JUMP);
@@ -178,12 +177,10 @@ void Peach::doSomething()
             if (hasShoot() && m_recharge_ticks <= 0)
             {
                 getWorld()->playSound(SOUND_PLAYER_FIRE);
-                m_recharging = true;
                 m_recharge_ticks = 8;
                 int dx = (getDirection() == 0) ? 4 : -4;
                 getWorld()->addActor(new PeachProjectile(getX() + dx, getY(), getDirection(), true, getWorld()));
             }
-
             break;
         }
     }
@@ -214,7 +211,7 @@ void Peach::damage()
 
 void Peach::givePower(Goodie::GoodieType goodie)
 {
-    if (goodie == Goodie::GoodieType::FLOWER)
+    if (goodie == Goodie::FLOWER)
     {
         m_powers[0] = true;
     }
@@ -238,7 +235,10 @@ Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(bl
 
 void Block::bonk(Actor *bonker)
 {
-    if (!m_released_goodie && m_block_type != Block::NONE && m_block_type != Block::PIPE)
+    if(m_block_type == Block::PIPE){
+        return;
+    }
+    if (!m_released_goodie && m_block_type != Block::NONE)
     {
         m_released_goodie = true;
         if (m_block_type == BlockType::FLOWER)

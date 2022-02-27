@@ -87,7 +87,7 @@ public:
 class Peach : public Actor
 {
 public:
-    Peach(int x_start, int y_start, StudentWorld *world);
+    Peach(int x, int y, StudentWorld *world);
 
     virtual void doSomething();
     virtual void bonk(Actor *bonker);
@@ -106,7 +106,6 @@ private:
     int m_hp;
     int m_temp_invincibility_ticks;
     int m_star_power_ticks;
-    bool m_recharging;
     int m_recharge_ticks;
     bool m_powers[3]; // shoot, jump, star
     int m_remaining_jump_distance;
