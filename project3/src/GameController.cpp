@@ -162,7 +162,7 @@ void GameController::timerFuncCallback(int)
 	glutTimerFunc(MS_PER_FRAME, timerFuncCallback, 0);
 }
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__linux__)
 void windowCloseCallback()
 {
 	SoundFX().abortClip();

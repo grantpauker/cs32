@@ -86,16 +86,50 @@ private:
   bool pidValid;
 };
 
-#else // forget about sound
+#else 
+
+#include <csignal>
+#include <cstring>
+#include <memory>
+#include <spawn.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 class SoundFXController
 {
 public:
-  void playClip(std::string) {}
-  void abortClip() {}
-  static SoundFXController &getInstance();
-};
+  SoundFXController()
+      : pidValid(false)
+  {
+  }
 
+  void playClip(std::string soundFile)
+  {
+    char cmd[] = "/usr/bin/aplay";
+    std::unique_ptr<char[]> fileName(new char[soundFile.size() + 1]);
+    std::strcpy(fileName.get(), soundFile.c_str());
+    char *argv[] = {cmd, fileName.get(), nullptr};
+    abortClip(); // stop anything currently playing
+    posix_spawn_file_actions_t action;
+    posix_spawn_file_actions_init(&action);
+    posix_spawn_file_actions_addopen(&action, STDERR_FILENO, "/dev/null", O_WRONLY | O_APPEND, 0);
+    pidValid = (posix_spawn(&pid, argv[0], &action, nullptr, argv, nullptr) == 0);
+    posix_spawn_file_actions_destroy(&action);
+  }
+
+  void abortClip()
+  {
+    if (pidValid)
+      kill(pid, SIGINT);
+    pidValid = false;
+  }
+
+  static SoundFXController &getInstance();
+
+private:
+  pid_t pid;
+  bool pidValid;
+};
 #endif
 
 // Meyers singleton pattern
