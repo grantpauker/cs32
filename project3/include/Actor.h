@@ -212,7 +212,7 @@ public:
 class Piranha : public Enemy
 {
 public:
-    Piranha(int x, int y, StudentWorld *world) : Enemy(x, y, IID_PIRANHA, world) {}
+    Piranha(int x, int y, StudentWorld *world) : Enemy(x, y, IID_PIRANHA, world) , m_firing_delay(0) {}
 
     virtual void doSomething();
 
