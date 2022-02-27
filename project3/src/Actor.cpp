@@ -235,7 +235,8 @@ Block::Block(int x, int y, BlockType block_type, StudentWorld *world) : Actor(bl
 
 void Block::bonk(Actor *bonker)
 {
-    if(m_block_type == Block::PIPE){
+    if (m_block_type == Block::PIPE)
+    {
         return;
     }
     if (!m_released_goodie && m_block_type != Block::NONE)
@@ -405,11 +406,13 @@ void Piranha::doSomething()
         return;
     }
     increaseAnimationNumber();
-    if (!getWorld()->isNearPeach(this))
+    int p_x, p_y;
+    getWorld()->getPeachPosition(&p_x, &p_y);
+    if (abs(getY() - p_y) > 1.5 * SPRITE_WIDTH)
     {
         return;
     }
-    int distance_to_peach = getWorld()->distanceToPeach(this);
+    int distance_to_peach = getX() - p_x;
     int dir = distance_to_peach > 0 ? 180 : 0;
     setDirection(dir);
     if (m_firing_delay >= 0)
