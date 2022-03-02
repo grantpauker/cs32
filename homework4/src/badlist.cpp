@@ -1,9 +1,16 @@
-void removeBad(std::list<Movie *> &li)
+void removeBad(std::list<Movie *> &l)
 {
-   for(auto it = li.begin(); it != li.end(); it++){
-       if((*it)->rating() < 50){
-           delete *it;
-           it = li.erase(it);
-       }
-   }
+    auto it = l.begin();
+    while (it != l.end())
+    {
+        if ((*it)->rating() < 50)
+        {
+            delete *it;
+            it = l.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
 }

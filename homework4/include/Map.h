@@ -1,7 +1,6 @@
 #ifndef MAP_H
 #define MAP_H
 
-// TODO organize
 template <typename KeyType, typename ValueType>
 class Map
 {

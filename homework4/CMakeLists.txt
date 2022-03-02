@@ -34,7 +34,21 @@ include_directories(include src)
 set(MAP_SOURCES src/test/map_test.cpp)
 set(ODD_SOURCES src/test/odd_test.cpp)
 set(BAD_SOURCES src/test/bad_test.cpp)
+set(THREE_E_SOURCES src/test/3e.cpp)
+set(LIST_SOURCES src/test/list_test.cpp)
+set(SORTS_SOURCES src/sorts.cpp)
  
+
+add_executable(oddlist ${ODD_SOURCES})
+add_executable(badlist ${BAD_SOURCES})
+add_executable(oddvector ${ODD_SOURCES})
+add_executable(badvector ${BAD_SOURCES})
+target_compile_options(oddvector PRIVATE "-DVECTOR")
+target_compile_options(badvector PRIVATE "-DVECTOR")
+
+add_executable(3e ${THREE_E_SOURCES})
+
+add_executable(list ${LIST_SOURCES})
+
+add_executable(sorts ${SORTS_SOURCES})
 add_executable(map ${MAP_SOURCES})
-add_executable(odd ${ODD_SOURCES})
-add_executable(bad ${BAD_SOURCES})

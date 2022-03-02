@@ -1,1 +1,1 @@
-Map.h oddlist.cpp oddvector.cpp badlist.cpp badvector.cpp
+Map.h oddlist.cpp oddvector.cpp badlist.cpp badvector.cpp list.cpp sorts.cpp hw.txt

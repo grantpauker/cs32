@@ -1,8 +1,15 @@
-void removeOdd(std::list<int> &li)
+void removeOdd(std::list<int> &l)
 {
-   for(auto it = li.begin(); it != li.end(); it++){
-       if((*it % 2) == 1){
-           it = li.erase(it);
-       }
-   }
+    auto it = l.begin();
+    while (it != l.end())
+    {
+        if ((*it % 2) != 0)
+        {
+            it = l.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
 }

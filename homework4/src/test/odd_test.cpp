@@ -5,7 +5,7 @@
 #include <vector>
 
 int a[8] = {2, 8, 5, 6, 7, 3, 4, 1};
-//#define VECTOR
+
 #ifdef VECTOR
 /*
  * Remove the odd integers from v.

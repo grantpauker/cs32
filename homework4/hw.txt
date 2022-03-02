@@ -1,0 +1,13 @@
+2. This causes a compilation error as the insert function relies on the == operator as well as the < operator being defined for KeyValue. This is because these 2 operators are used to both ensure the given doesn't already exist as well as sort the pairs when they are inserted into the underlying linked-list. Coord does not have these 2 operators implemented, so it fails to build.
+
+3e. Test case 3 fails because we are looping over it using an iterator and this iterator is invalidated after inserting items into the vector. It is possible that the underlying dynamic memory within the vector is being reallocated, so the iterator doesn't refer to the correct location in memory.
+
+4b. Given the constraints in part a, we could not solve this problem using only a one-parameter listAll as there would be no way of indicating to the function that it was being given the root Class. For the root Class, no "=>" is printed beforehand. If there was no additional parameter, listAll would have to print "=>" before every single line.
+
+5.
+(a) This algorithm is O(N^3). This is because there are 3 nested for loops that each range from 0 to N. The only way a computation within the for loop is skipped is if i == j == k, which only happens once per loop, so this doesn't affect the big O notation.
+(b). This algorithm is still O(N^3). This is because the only change is to the j loop. Here the number of times j runs, on average, is (0+1+...+N)/N. This simplifies to around N/2, which means O(N*N/2*N) which is just O(N^3) ignoring the 1/2.
+
+6.
+(a) O(N^2). This is because the for loop runs N times and the operations inside the for loop, on average, take O(N) time. The main operation inside the for loop is m.get(i, k, v), which has to visit i nodes in the linked list. Since i ranges from 0 to N, it will on average have to visit N/2 nodes, resulting in N*N/2 or O(N^2).
+(b) O(N). This because there is only 1 loop over the elements which runs N times. Inside the for loop there is only 1 access of a node, resulting in O(N). This is much better than the implementation above.

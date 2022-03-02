@@ -17,7 +17,6 @@ private:
     int m_rating;
 };
 
-//#define VECTOR
 #ifdef VECTOR
 /*
  * Remove the movies in v with a rating below 50 and destroy them.
