@@ -1,6 +1,7 @@
 #ifndef PROVIDED_H
 #define PROVIDED_H
 
+#include <iostream>
 #include <string>
 
 struct AttValPair
@@ -26,7 +27,18 @@ struct AttValPair
     {
         return !(*this == rhs);
     }
+
+#ifndef FINAL
+    friend std::ostream &operator<<(std::ostream &out, const AttValPair &avp);
+#endif
 };
+#ifndef FINAL
+std::ostream &operator<<(std::ostream &out, const AttValPair &avp)
+{
+    out << "(" << avp.attribute << ", " << avp.value << ")";
+    return out;
+}
+#endif
 
 struct EmailCount
 {
@@ -39,4 +51,4 @@ struct EmailCount
     int count;
 };
 
-#endif //_PROVIDED_H_
+#endif // PROVIDED_H

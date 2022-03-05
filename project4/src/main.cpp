@@ -28,7 +28,8 @@ int main()
     }
 
     while (findMatches(mdb, at))
-        ;
+    {
+    }
 
     std::cout << "Happy dating!" << std::endl;
 }
@@ -40,8 +41,11 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
     const PersonProfile *pp;
     for (;;)
     {
+        /*
         std::cout << "Enter the member's email for whom you want to find matches: ";
         std::getline(std::cin, email);
+        */
+        email = "AbFow2483@charter.net";
         if (email.empty())
             return false;
         pp = mdb.GetMemberByEmail(email);
@@ -58,6 +62,13 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
         pp->GetAttVal(k, av);
         std::cout << av.attribute << " --> " << av.value << std::endl;
     }
+    AttributeTranslator translator;
+    std::vector<AttValPair> v = translator.FindCompatibleAttValPairs(AttValPair("job", "architect"));
+
+    for(auto avp : v){
+        std::cout << avp << std::endl;
+    }
+    /*
 
     // Prompt user for threshold
     int threshold;
@@ -82,5 +93,6 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
         }
     }
     std::cout << std::endl;
-    return true;
+    */
+    return false;
 }
