@@ -3,10 +3,8 @@
 #include "MemberDatabase.h"
 #include "PersonProfile.h"
 #include "provided.h"
-#include <iostream>
 #include <string>
 #include <vector>
-
 const std::string MEMBERS_FILE = "data/members.txt";
 const std::string TRANSLATOR_FILE = "data/translator.txt";
 
@@ -30,6 +28,7 @@ int main()
     while (findMatches(mdb, at))
     {
     }
+    
 
     std::cout << "Happy dating!" << std::endl;
 }
@@ -41,10 +40,8 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
     const PersonProfile *pp;
     for (;;)
     {
-        /*
         std::cout << "Enter the member's email for whom you want to find matches: ";
         std::getline(std::cin, email);
-        */
         email = "AbFow2483@charter.net";
         if (email.empty())
             return false;

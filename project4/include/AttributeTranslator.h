@@ -31,7 +31,6 @@ public:
             AttValPair compatible(att, val);
             std::string source_str = source.attribute + "," + source.value;
             std::vector<AttValPair> **matching_avps = m_translator.search(source_str);
-            std::cout << source.value << std::endl;
             if (matching_avps == nullptr)
             {
                 std::vector<AttValPair> *v = new std::vector<AttValPair>();

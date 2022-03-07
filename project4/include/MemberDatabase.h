@@ -16,17 +16,14 @@ public:
     {
         std::ifstream file;
         file.open(filename);
-        for (int j = 0; j < 100000; j++) // TODO find end of file
+        for (int j = 0; j < 10000; j++) // TODO find end of file
         {
-            std::string name;
-            std::string email;
-            std::string count_str;
-            int count;
+            std::string name, email, count_str;
             std::getline(file, name);
             std::getline(file, email);
             std::getline(file, count_str);
-            count = std::stoi(count_str);
-            PersonProfile profile(name, email);
+            int count = std::stoi(count_str);
+            PersonProfile *profile = new PersonProfile(name, email);
             std::string line;
             for (int i = 0; i < count; i++)
             {
@@ -36,18 +33,27 @@ public:
                 std::getline(str, att, ',');
                 std::getline(str, val, ',');
                 AttValPair avp(att, val);
-                profile.AddAttValPair(avp);
-                std::string avp_str = attValPairToString(avp);
-                std::vector<std::string> **matching_emails = m_emails.search(avp_str);
+                profile->AddAttValPair(avp);
+                if(email == "RomDeleon99@earthlink.net"){
+                    int x= 0;
+                }
+                std::vector<std::string> **matching_emails = m_emails.search(line);
                 if (matching_emails == nullptr)
                 {
                     std::vector<std::string> *v = new std::vector<std::string>();
                     v->push_back(email);
-                    m_emails.insert(avp_str, v);
+                    m_emails.insert(line, v);
                 }
                 else
                 {
-                    (*matching_emails)->push_back(email);
+                    if (*matching_emails == nullptr)
+                    {
+                        std::cout << email << std::endl;
+                    }
+                    else
+                    {
+                        (*matching_emails)->push_back(email);
+                    }
                 }
             }
             m_profiles.insert(email, profile);
@@ -68,16 +74,11 @@ public:
 
     const PersonProfile *GetMemberByEmail(std::string email) const
     {
-        return m_profiles.search(email);
+        return *m_profiles.search(email);
     }
 
 private:
-    std::string attValPairToString(const AttValPair avp) const
-    {
-        return avp.attribute + "," + avp.value;
-    }
-
     RadixTree<std::vector<std::string> *> m_emails; // attribute-value pair -> email address
-    RadixTree<PersonProfile> m_profiles;            // email address -> profile
+    RadixTree<PersonProfile *> m_profiles;          // email address -> profile
 };
 #endif
