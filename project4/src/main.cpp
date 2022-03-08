@@ -3,8 +3,10 @@
 #include "MemberDatabase.h"
 #include "PersonProfile.h"
 #include "provided.h"
+#include <chrono>
 #include <string>
 #include <vector>
+
 const std::string MEMBERS_FILE = "data/members.txt";
 const std::string TRANSLATOR_FILE = "data/translator.txt";
 
@@ -18,6 +20,7 @@ int main()
         std::cout << "Error loading " << MEMBERS_FILE << std::endl;
         return 1;
     }
+
     AttributeTranslator at;
     if (!at.Load(TRANSLATOR_FILE))
     {
@@ -28,30 +31,33 @@ int main()
     while (findMatches(mdb, at))
     {
     }
-    
 
     std::cout << "Happy dating!" << std::endl;
 }
 
 bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
 {
-    // Prompt for email
+    // prompt for email
     std::string email;
     const PersonProfile *pp;
-    for (;;)
+    while (1)
     {
         std::cout << "Enter the member's email for whom you want to find matches: ";
-        std::getline(std::cin, email);
         email = "AbFow2483@charter.net";
+        std::getline(std::cin, email);
         if (email.empty())
+        {
             return false;
+        }
         pp = mdb.GetMemberByEmail(email);
         if (pp != nullptr)
+        {
             break;
+        }
         std::cout << "That email is not in the member database." << std::endl;
     }
 
-    // Show member's attribute-value pairs
+    // show member's attribute-value pairs
     std::cout << "The member has the following attributes:" << std::endl;
     for (int k = 0; k != pp->GetNumAttValPairs(); k++)
     {
@@ -62,26 +68,27 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
     AttributeTranslator translator;
     std::vector<AttValPair> v = translator.FindCompatibleAttValPairs(AttValPair("job", "architect"));
 
-    for(auto avp : v){
-        std::cout << avp << std::endl;
+    for (auto avp : v)
+    {
+        avp.print();
     }
-    /*
 
-    // Prompt user for threshold
+    // prompt user for threshold
     int threshold;
     std::cout << "How many shared attributes must matches have? ";
     std::cin >> threshold;
     std::cin.ignore(10000, '\n');
 
-    // Print matches and the number of matching translated attributes
+    // print matches and the number of matching translated attributes
     MatchMaker mm(mdb, at);
     std::vector<EmailCount> emails = mm.IdentifyRankedMatches(email, threshold);
     if (emails.empty())
+    {
         std::cout << "No member was a good enough match." << std::endl;
+    }
     else
     {
         std::cout << "The following members were good matches:" << std::endl;
-        ;
         for (const auto &emailCount : emails)
         {
             const PersonProfile *pp = mdb.GetMemberByEmail(emailCount.email);
@@ -90,6 +97,5 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
         }
     }
     std::cout << std::endl;
-    */
-    return false;
+    return true;
 }

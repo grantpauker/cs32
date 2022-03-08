@@ -1,41 +1,37 @@
 #ifndef PERSON_PROFILE_H
 #define PERSON_PROFILE_H
+#include "RadixTree.h"
 #include "provided.h"
 #include <string>
-#include <vector>
+#include <unordered_set>
+
 class PersonProfile
 {
 public:
-    PersonProfile(std::string name, std::string email) : m_name(name), m_email(email){};
+    PersonProfile(std::string name, std::string email) : m_name(name), m_email(email), m_pair_count(0){};
     ~PersonProfile(){};
+
     std::string GetName() const { return m_name; }
     std::string GetEmail() const { return m_email; }
-    void AddAttValPair(const AttValPair &attval)
-    {
-        m_attval_pairs.push_back(attval);
-    }
-    int GetNumAttValPairs() const
-    {
-        return m_attval_pairs.size();
-    }
-    bool GetAttVal(int attribute_num, AttValPair &attval) const // <O(N)
-    {
-        if (0 > attribute_num || attribute_num >= GetNumAttValPairs())
-        {
-            return false;
-        }
-        attval = m_attval_pairs[attribute_num];
-        return true;
-    }
 
+    void AddAttValPair(const AttValPair &attval);
+    int GetNumAttValPairs() const { return m_pair_count; }
+
+    bool GetAttVal(int attribute_num, AttValPair &attval) const;
+
+    // TODO delete
     void print() const
     {
         std::cout << m_name << '\n'
                   << m_email << '\n'
                   << GetNumAttValPairs() << '\n';
-        for (auto avp : m_attval_pairs)
+        for (auto attribute : m_attributes)
         {
-            std::cout << avp << '\n';
+            std::unordered_set<std::string> values = *m_att_val.search(attribute);
+            for (auto value : values)
+            {
+                std::cout << attribute << ", " << value << std::endl;
+            }
         }
         std::cout << std::flush;
     }
@@ -43,6 +39,8 @@ public:
 private:
     std::string m_name;
     std::string m_email;
-    std::vector<AttValPair> m_attval_pairs; // TODO is vector good?
+    RadixTree<std::unordered_set<std::string>> m_att_val; // attribute -> unordered set of values
+    std::unordered_set<std::string> m_attributes;
+    int m_pair_count;
 };
 #endif
