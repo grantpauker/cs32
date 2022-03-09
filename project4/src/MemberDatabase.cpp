@@ -15,10 +15,15 @@ MemberDatabase::~MemberDatabase()
         PersonProfile **profile = m_email_to_profile.search(email);
         if (profile != nullptr)
         {
-            if (*profile != nullptr)
-            {
-                delete *profile;
-            }
+            delete *profile;
+        }
+    }
+    for (auto avp : m_avps)
+    {
+        std::vector<std::string> **emails = m_avp_to_emails.search(avp);
+        if (emails != nullptr)
+        {
+            delete *emails;
         }
     }
 }
@@ -61,6 +66,7 @@ bool MemberDatabase::LoadDatabase(std::string filename)
             std::vector<std::string> **existing_emails = m_avp_to_emails.search(line);
             if (existing_emails == nullptr)
             {
+                m_avps.insert(line);
                 std::vector<std::string> *new_emails = new std::vector<std::string>({email});
                 m_avp_to_emails.insert(line, new_emails);
             }
