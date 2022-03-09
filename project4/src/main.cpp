@@ -14,6 +14,7 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at);
 
 int main()
 {
+    auto t0 = std::chrono::high_resolution_clock::now();
     MemberDatabase mdb;
     if (!mdb.LoadDatabase(MEMBERS_FILE))
     {
@@ -21,12 +22,18 @@ int main()
         return 1;
     }
 
+    auto t1 = std::chrono::high_resolution_clock::now();
     AttributeTranslator at;
     if (!at.Load(TRANSLATOR_FILE))
     {
         std::cout << "Error loading " << TRANSLATOR_FILE << std::endl;
         return 1;
     }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto mdb_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
+    auto at_time = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+    std::cout << "member database: " << mdb_time.count() << "ms" << std::endl;
+    std::cout << "attribute translator: " << at_time.count() << "ms" << std::endl;
 
     while (findMatches(mdb, at))
     {
@@ -34,7 +41,6 @@ int main()
 
     std::cout << "Happy dating!" << std::endl;
 }
-
 bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
 {
     // prompt for email
@@ -67,11 +73,6 @@ bool findMatches(const MemberDatabase &mdb, const AttributeTranslator &at)
     }
     AttributeTranslator translator;
     std::vector<AttValPair> v = translator.FindCompatibleAttValPairs(AttValPair("job", "architect"));
-
-    for (auto avp : v)
-    {
-        avp.print();
-    }
 
     // prompt user for threshold
     int threshold;
