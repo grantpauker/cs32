@@ -19,7 +19,7 @@ public:
     const PersonProfile *GetMemberByEmail(std::string email) const;
 
 private:
-    RadixTree<std::vector<std::string>> m_avp_to_emails; // attribute-value pair -> email address
+    RadixTree<std::vector<std::string>*> m_avp_to_emails; // attribute-value pair -> email address
     RadixTree<PersonProfile *> m_email_to_profile;       // email address -> profile
     std::set<std::string> m_emails;
 };

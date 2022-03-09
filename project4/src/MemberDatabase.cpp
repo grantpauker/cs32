@@ -58,16 +58,15 @@ bool MemberDatabase::LoadDatabase(std::string filename)
             AttValPair avp(att, val);
             profile->AddAttValPair(avp);
 
-            std::vector<std::string> *existing_emails = m_avp_to_emails.search(line);
+            std::vector<std::string> **existing_emails = m_avp_to_emails.search(line);
             if (existing_emails == nullptr)
             {
-                std::vector<std::string> new_emails = {email};
+                std::vector<std::string> *new_emails = new std::vector<std::string>({email});
                 m_avp_to_emails.insert(line, new_emails);
             }
             else
             {
-                existing_emails->push_back(email);
-                m_avp_to_emails.insert(line, *existing_emails);
+                (*existing_emails)->push_back(email);
             }
         }
         m_email_to_profile.insert(email, profile);
@@ -87,12 +86,12 @@ std::vector<std::string> MemberDatabase::FindMatchingMembers(const AttValPair &i
     // O(P+M)
     // P: total number of distinct avp pairs in population
     // M: number of members that have the given pair
-    std::vector<std::string> *matching_emails = m_avp_to_emails.search(input.attribute + "," + input.value);
+    std::vector<std::string> **matching_emails = m_avp_to_emails.search(input.attribute + "," + input.value);
     if (matching_emails == nullptr)
     {
         return std::vector<std::string>();
     }
-    return *matching_emails; // TODO no duplicates
+    return **matching_emails;
 }
 
 const PersonProfile *MemberDatabase::GetMemberByEmail(std::string email) const
