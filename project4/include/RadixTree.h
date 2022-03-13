@@ -21,57 +21,81 @@ public:
 
     void insert(std::string key, const ValueType &value)
     {
-        Node *parent;
+        std::string original_key = key;
+        Node *parent = nullptr;
         Node *found = findLocation(m_head, &key, &parent);
+
+        // case 1
+        // root node
         if (found->key.empty())
         {
             found->children[key[0]] = new Node(key, value, true);
             return;
         }
-        int diff = firstDifference(found->key, key);
-        std::string prefix = commonPrefix(found->key, key);
-
-        if (diff > key.size())
+        // case 4
+        if (found->key == key || key == "")
         {
-            // abcd then abc
-            Node *shifted = new Node(found->key.substr(diff - 1), found->value, true);
-            found->key = key;
-            found->end = true;
             found->value = value;
-            found->children[shifted->key[0]] = shifted;
+            found->end = true;
             return;
         }
+        int diff = firstDifference(found->key, key);
 
-        // abc, abcd, abef
-        if (!prefix.empty() && prefix.size() < found->key.size() && !isChildless(found))
-        {
-            // parent should now link to the `
-            std::string above_prefix = found->key.substr(0, prefix.size()); // ab
-            std::string inserted_key = key.substr(prefix.size());           // ef
-            std::string trimmed_key = found->key.substr(prefix.size());     // c
-            Node *new_parent = new Node(above_prefix, false);
-            Node *insertion = new Node(inserted_key, value, true);
-            new_parent->children[insertion->key[0]] = insertion;
-            new_parent->children[trimmed_key[0]] = found;
-            parent->children[new_parent->key[0]] = new_parent;
-            found->key = trimmed_key;
-            return;
-
-            // std::cout << parent->key <<std::endl;
-        }
-        if (!prefix.empty() && prefix.size() > 1)
-        {
-            Node *shifted = new Node(found->key.substr(prefix.size()), found->value, true);
-            Node *insertion = new Node(key.substr(prefix.size()), value, true);
-            found->key = prefix;
-            found->end = false;
-            found->children[shifted->key[0]] = shifted;
-            found->children[insertion->key[0]] = insertion;
-            return;
-        }
-        if (found->children[key[0]] == nullptr)
+        // case 5
+        if (found->children[key[0]] == nullptr && (diff == 0 || diff > found->key.size())) // TODO why diff > statement
         {
             found->children[key[0]] = new Node(key, value, true);
+            return;
+        }
+        if (isChildless(found))
+        {
+            // case 6
+            if (diff > key.size())
+            { // TODO check if should be <=
+                Node *shifted = new Node(found->key.substr(diff - 1), found->value, true);
+                found->key = key;
+                found->value = value;
+                found->end = true;
+                found->children[shifted->key[0]] = shifted;
+                return;
+            }
+            // case 3
+            else
+            {
+                std::string prefix = found->key.substr(0, diff);
+                Node *shifted = new Node(found->key.substr(diff), found->value, true);
+                Node *inserted = new Node(key.substr(diff), value, true);
+                found->key = prefix;
+                found->end = false;
+                found->children[shifted->key[0]] = shifted;
+                found->children[inserted->key[0]] = inserted;
+                return;
+            }
+        }
+        else
+        {
+            // case 7
+            if (diff > key.size())
+            { // TODO check if should be <=
+                Node *inserted = new Node(key, value, true);
+                found->key = found->key.substr(diff - 1);
+                found->end = false; // TODO is this needed?
+                inserted->children[found->key[0]] = found;
+                parent->children[inserted->key[0]] = inserted;
+            }
+            // case 3
+            else
+            {
+                std::string prefix = found->key.substr(0, diff);
+                Node *shifted = new Node(prefix, false);
+                Node *inserted = new Node(key.substr(diff), value, true);
+                found->key = found->key.substr(diff);
+                found->end = false;
+                shifted->children[found->key[0]] = found;
+                shifted->children[inserted->key[0]] = inserted;
+                parent->children[shifted->key[0]] = shifted;
+                return;
+            }
         }
     }
 
@@ -84,7 +108,10 @@ public:
         }
         return &(found->value);
     }
-
+    void print()
+    {
+        print(m_head, "");
+    }
 
 private:
     struct Node
@@ -103,12 +130,32 @@ private:
     };
     Node *m_head;
 
+    void print(Node *cur, std::string prefix)
+    {
+        if (cur == nullptr)
+        {
+            return;
+        }
+        if (cur == m_head)
+        {
+            std::cout << "ROOT" << std::endl;
+        }
+        else
+        {
+
+            std::cout << prefix << cur->key << (cur->end ? "#" : "") << std::endl;
+        }
+        for (auto c : cur->children)
+        {
+            print(c, prefix + ".");
+        }
+    }
 
     bool isChildless(Node *node)
     {
         for (int i = 0; i < 128; i++)
         {
-            if (node->children[i] == nullptr)
+            if (node->children[i] != nullptr)
             {
                 return false;
             }
@@ -147,7 +194,6 @@ private:
         }
         return i + 1;
     }
-
 
     Node *findLocation(Node *cur, std::string *key, Node **parent) const
     {

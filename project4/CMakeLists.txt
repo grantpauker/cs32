@@ -4,6 +4,7 @@ project(project4)
 add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
 
 option(G32 "use g32" OFF)
+option(O2 "use O2" OFF)
 
 if(G32)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -29,7 +30,9 @@ if(G32)
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+if(O2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+endif()
 
 include_directories(include)
 
