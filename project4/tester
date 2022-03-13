@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+for i in $(seq 1 $1); do 
+	# get a random email
+	email=$(grep @ data/members.txt | shuf -n1)
+	# get a random threshold from 0 to 8
+	thresh=$((RANDOM%8))
+	echo "Trying $email with a threshold of $thresh"
+	# test my code
+	printf "$email\n$thresh\n" | ./unhinged | grep 'matches\!' > my_matches
+	# test working code
+	printf "$email\n$thresh\n" | ./samplep4 | grep 'matches\!' > real_matches
+	# compare results
+	diff my_matches real_matches &>> /dev/null && echo FAILED || echo SUCCESS
+done
+

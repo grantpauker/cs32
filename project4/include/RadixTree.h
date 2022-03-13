@@ -41,7 +41,7 @@ public:
         int diff = firstDifference(found->key, key);
 
         // insert single node below current (5)
-        if (found->children[key[0]] == nullptr && (diff == 0 || diff > found->key.size())) // TODO why diff > statement
+        if (found->children[key[0]] == nullptr && (diff == 0 || diff > found->key.size())) 
         {
             found->children[key[0]] = new Node(key, value, true);
             return;
@@ -75,10 +75,10 @@ public:
         {
             // shift current node up and insert one node (7)
             if (diff > key.size())
-            { // TODO check if should be <=
+            { 
                 Node *inserted = new Node(key, value, true);
                 found->key = found->key.substr(diff - 1);
-                found->end = false; // TODO is this needed?
+                found->end = false; 
                 inserted->children[found->key[0]] = found;
                 parent->children[inserted->key[0]] = inserted;
             }
