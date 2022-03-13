@@ -25,14 +25,13 @@ public:
         Node *parent = nullptr;
         Node *found = findLocation(m_head, &key, &parent);
 
-        // case 1
-        // root node
+        // root node (1)
         if (found->key.empty())
         {
             found->children[key[0]] = new Node(key, value, true);
             return;
         }
-        // case 4
+        // replace current node (4)
         if (found->key == key || key == "")
         {
             found->value = value;
@@ -41,7 +40,7 @@ public:
         }
         int diff = firstDifference(found->key, key);
 
-        // case 5
+        // insert single node below current (5)
         if (found->children[key[0]] == nullptr && (diff == 0 || diff > found->key.size())) // TODO why diff > statement
         {
             found->children[key[0]] = new Node(key, value, true);
@@ -49,9 +48,9 @@ public:
         }
         if (isChildless(found))
         {
-            // case 6
+            // shift current node down and insert one node (6)
             if (diff > key.size())
-            { // TODO check if should be <=
+            { 
                 Node *shifted = new Node(found->key.substr(diff - 1), found->value, true);
                 found->key = key;
                 found->value = value;
@@ -59,7 +58,7 @@ public:
                 found->children[shifted->key[0]] = shifted;
                 return;
             }
-            // case 3
+            // shift current node down and insert two nodes (2)
             else
             {
                 std::string prefix = found->key.substr(0, diff);
@@ -74,7 +73,7 @@ public:
         }
         else
         {
-            // case 7
+            // shift current node up and insert one node (7)
             if (diff > key.size())
             { // TODO check if should be <=
                 Node *inserted = new Node(key, value, true);
@@ -83,7 +82,7 @@ public:
                 inserted->children[found->key[0]] = found;
                 parent->children[inserted->key[0]] = inserted;
             }
-            // case 3
+            // shift current node up and insert two nodes (4)
             else
             {
                 std::string prefix = found->key.substr(0, diff);

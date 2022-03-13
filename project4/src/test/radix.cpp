@@ -14,13 +14,17 @@ int main()
         "rubicundus",
         "roman",
         "romper"};
+
     for (int i = 0; i < v.size(); i++)
     {
         r.insert(v[i], i);
     }
-    r.print();
+    //r.print();
     for (int i = 0; i < v.size(); i++)
     {
-        std::cout << v[i] << ": " << std::flush << *r.search(v[i]) << std::endl;
+        std::string word = v[i];
+        int*  value= r.search(word);
+        assert(*value == i);
+        std::cout << word << ": " << std::flush << *r.search(word) << std::endl;
     }
 }

@@ -3,6 +3,7 @@
 #include "provided.h"
 #include <string>
 
+// hash an attvalpair as a string
 template <>
 struct std::hash<AttValPair>
 {

@@ -3,11 +3,11 @@
 #include "MemberDatabase.h"
 #include "provided.h"
 #include "utility.h"
+#include <algorithm>
 #include <map>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <unordered_map>
-#include <algorithm>
 
 std::vector<EmailCount> MatchMaker::IdentifyRankedMatches(std::string email, int threshold) const
 {
