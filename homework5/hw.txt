@@ -45,6 +45,7 @@ insert(value):
       else
         cur.left.parent = cur
         cur.left.value = value
+        cur.left.left/right = nullptr
         break
     else if value > cur.value:
       if cur.right exists:
@@ -52,6 +53,7 @@ insert(value):
       else
         cur.right.parent = cur
         cur.right.value = value
+        cur.right.left/right = nullptr
         break
     else
       break
