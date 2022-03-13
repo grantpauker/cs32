@@ -4,17 +4,19 @@
 #include "provided.h"
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 class AttributeTranslator
 {
 public:
     AttributeTranslator() {}
-    ~AttributeTranslator() {}
+    ~AttributeTranslator();
 
     bool Load(std::string filename);
     std::vector<AttValPair> FindCompatibleAttValPairs(const AttValPair &source) const;
 
 private:
-    RadixTree<std::vector<AttValPair>> m_translator;
+    RadixTree<std::vector<AttValPair>*> m_translator;
+    std::unordered_set<std::string> m_sources; // all source avps
 };
 #endif

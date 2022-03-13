@@ -26,12 +26,6 @@ struct AttValPair
     {
         return !(*this == rhs);
     }
-
-    // TODO delete
-    void print()
-    {
-        std::cout << "(" << attribute << ", " << value << ")" << std::endl;
-    }
 };
 
 struct EmailCount
