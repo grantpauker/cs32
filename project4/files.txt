@@ -6,7 +6,7 @@ MemberDatabase.h
 MemberDatabase.cpp 
 MatchMaker.h  
 MatchMaker.cpp 
+RadixTree.h 
 utility.h  
 utility.cpp 
-RadixTree.h
 report.docx
