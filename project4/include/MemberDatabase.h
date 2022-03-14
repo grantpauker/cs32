@@ -19,9 +19,9 @@ public:
     const PersonProfile *GetMemberByEmail(std::string email) const;
 
 private:
-    RadixTree<std::vector<std::string>*> m_avp_to_emails; // avp -> vector of email addresses
-    RadixTree<PersonProfile *> m_email_to_profile;       // email address -> profile
-    std::set<std::string> m_emails; // all loaded emails
-    std::set<std::string> m_avps; // all loaded avps
+    RadixTree<std::vector<std::string> *> m_avp_to_emails; // avp -> vector of email addresses
+    RadixTree<PersonProfile *> m_email_to_profile;         // email address -> profile
+    std::set<std::string> m_emails;                        // all loaded emails
+    std::set<std::string> m_avps;                          // all loaded avps
 };
 #endif

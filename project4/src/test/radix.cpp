@@ -1,5 +1,7 @@
 #include "RadixTree.h"
 #include <cassert>
+#include <iostream>
+#include <vector>
 
 int main()
 {
@@ -14,17 +16,16 @@ int main()
         "rubicundus",
         "roman",
         "romper"};
-
     for (int i = 0; i < v.size(); i++)
     {
         r.insert(v[i], i);
     }
-    //r.print();
+    // r.print();
     for (int i = 0; i < v.size(); i++)
     {
         std::string word = v[i];
-        int*  value= r.search(word);
+        int *value = r.search(word);
+        std::cout << word << ": " << std::flush << *value << std::endl;
         assert(*value == i);
-        std::cout << word << ": " << std::flush << *r.search(word) << std::endl;
     }
 }

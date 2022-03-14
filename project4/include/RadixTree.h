@@ -1,8 +1,5 @@
-#ifndef RADIX_TREE_H2
-#define RADIX_TREE_H2
-#include <algorithm>
-#include <chrono>
-#include <iostream>
+#ifndef RADIX_TREE_H
+#define RADIX_TREE_H
 #include <string>
 
 template <typename ValueType>
@@ -12,12 +9,6 @@ public:
     RadixTree() { m_head = new Node(); }
 
     ~RadixTree() { deleteNodes(m_head); }
-
-    std::string commonPrefix(std::string a, std::string b)
-    {
-        int diff = firstDifference(a, b);
-        return a.substr(0, diff);
-    }
 
     void insert(std::string key, const ValueType &value)
     {
@@ -44,7 +35,8 @@ public:
                 return;
             }
             // given key is already in tree
-            if(key == found->key){
+            if (key == found->key)
+            {
                 found->end = true;
                 found->value = value;
                 return;
@@ -63,34 +55,18 @@ public:
                 parent->children[inserted->key[0]] = inserted;
                 return;
             }
+            // current key have letters a prefix in common, but both need to be split into new nodes
             else
             {
                 int diff = firstDifference(key, found->key);
-                // if the node has children shift everything down
-                if (isChildless(found))
-                {
-                    std::string prefix = found->key.substr(0, diff);
-                    Node *shifted = new Node(found->key.substr(diff), found->value, true);
-                    Node *inserted = new Node(key.substr(diff), value, true);
-                    found->key = prefix;
-                    //found->end = false; 
-                    found->children[shifted->key[0]] = shifted;
-                    found->children[inserted->key[0]] = inserted;
-                    return;
-                }
-                // if the node doesn't have children shift everything up
-                else
-                {
-                    std::string prefix = found->key.substr(0, diff);
-                    Node *shifted = new Node(prefix, false);
-                    Node *inserted = new Node(key.substr(diff), value, true);
-                    found->key = found->key.substr(diff);
-                    //found->end = false; 
-                    shifted->children[found->key[0]] = found;
-                    shifted->children[inserted->key[0]] = inserted;
-                    parent->children[shifted->key[0]] = shifted;
-                    return;
-                }
+                std::string prefix = found->key.substr(0, diff);
+                Node *shifted = new Node(prefix, false);
+                Node *inserted = new Node(key.substr(diff), value, true);
+                found->key = found->key.substr(diff);
+                // found->end = false;
+                shifted->children[found->key[0]] = found;
+                shifted->children[inserted->key[0]] = inserted;
+                parent->children[shifted->key[0]] = shifted;
             }
         }
     }
@@ -103,10 +79,6 @@ public:
             return nullptr;
         }
         return &(found->value);
-    }
-    void print()
-    {
-        print(m_head, "");
     }
 
 private:
@@ -125,27 +97,6 @@ private:
         Node *children[128];
     };
     Node *m_head;
-
-    void print(Node *cur, std::string prefix)
-    {
-        if (cur == nullptr)
-        {
-            return;
-        }
-        if (cur == m_head)
-        {
-            std::cout << "ROOT" << std::endl;
-        }
-        else
-        {
-
-            std::cout << prefix << cur->key << (cur->end ? "#" : "") << std::endl;
-        }
-        for (auto c : cur->children)
-        {
-            print(c, prefix + ".");
-        }
-    }
 
     bool isChildless(Node *node)
     {
@@ -179,6 +130,7 @@ private:
 
     int firstDifference(std::string a, std::string b) const
     {
+        // find the index of the first difference between 2 strings
         int i = 0;
         for (; i < std::min(a.size(), b.size()); i++)
         {
@@ -210,5 +162,28 @@ private:
         }
         return nullptr;
     }
+
+    /*
+    void print(Node *cur, std::string prefix)
+    {
+        if (cur == nullptr)
+        {
+            return;
+        }
+        if (cur == m_head)
+        {
+            std::cout << "ROOT" << std::endl;
+        }
+        else
+        {
+
+            std::cout << prefix << cur->key << (cur->end ? "#" : "") << std::endl;
+        }
+        for (auto c : cur->children)
+        {
+            print(c, prefix + ".");
+        }
+    }
+    */
 };
 #endif

@@ -9,17 +9,14 @@
 
 AttributeTranslator::~AttributeTranslator()
 {
-    int i = 0; 
     for (auto source : m_sources)
     {
         std::vector<AttValPair> **compatible = m_translator.search(source);
         if (compatible != nullptr)
         {
-            i++;
             delete *compatible;
         }
     }
-    std::cout << i << " " << m_sources.size() << std::endl;
 }
 
 bool AttributeTranslator::Load(std::string filename)
