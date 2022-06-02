@@ -1,4 +1,4 @@
-# CS 32
+# UCLA CS 32 (Winter 2022)
 
 | Homework | Score |
 | ------- | ----- |
